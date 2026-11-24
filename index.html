@@ -47,11 +47,12 @@ button.o{background:var(--card)}
 .dock{position:sticky;bottom:0;background:var(--bg);padding:8px 0 6px;display:flex;gap:8px;z-index:5}
 .dock input{margin:0;flex:1}
 .dock button{width:auto;margin:0;padding:0 22px}
-.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}</style>
+.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.onl{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 14px}.play .onl{display:none}</style>
 </head>
 <body>
 <main>
 <div class="hero"><b>VOID</b><span>تحدي الأصدقاء ... خمّن الإجابات قبل الجميع</span></div>
+<div id="onl" class="onl"></div>
 <div id="app"></div>
 <p class="cr">🎮 لعبة مجتمع VOID · من تصميم <b>ice</b></p>
 </main>
@@ -70,8 +71,9 @@ const FIREBASE_CONFIG = {
 };
 /* ================================================================== */
 let _db=null;
+function fbDb(){if(!_db){firebase.initializeApp(FIREBASE_CONFIG);_db=firebase.database()}return _db}
 async function fbJoin(c){
-  if(!_db){firebase.initializeApp(FIREBASE_CONFIG);_db=firebase.database()}
+  fbDb();
   const ref=_db.ref('rooms/'+c+'/ev');
   const off=(await _db.ref('.info/serverTimeOffset').once('value')).val()||0;
   const me=Math.random().toString(36).slice(2,10),t0=Date.now()+off-1500,H={};
@@ -179,22 +181,24 @@ function home(err){
   S.phase='home';document.body.classList.remove('play');
   app.innerHTML=`<div class="card">
   <input id="nm" placeholder="اسمك" maxlength="16">
-  <button id="cr">إنشاء غرفة جديدة</button>
+  <button id="rd">🎲 لعب عشوائي مع لاعبين</button>
+  <button id="cr" class="o" style="text-align:center">إنشاء غرفة لأصدقائك</button>
   <p class="s" style="margin:14px 0 8px">أو انضم بكود صديقك</p>
   <input id="cd" placeholder="الكود" maxlength="8" style="direction:ltr;text-align:center">
   <button id="jn" class="o" style="text-align:center">انضمام</button>
   <p id="er" class="s" style="color:var(--bad);margin-top:10px">${err||''}</p></div>`;
   $('#cr').onclick=()=>enter(code(),true);
+  $('#rd').onclick=quick;
   $('#jn').onclick=()=>enter($('#cd').value.trim().toLowerCase(),false);
 }
-async function enter(c,host){
+async function enter(c,host,auto){
   const n=$('#nm').value.trim();
   if(!n){$('#er').textContent='اكتب اسمك أولاً';return}
   if(!/^[a-z0-9]{2,8}$/.test(c)){$('#er').textContent='الكود غير صحيح';return}
   let room=null;
   try{room=await fbJoin(c)}catch(e){console.error(e)}
   if(!room){$('#er').textContent='تعذّر الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase.';return}
-  Object.assign(S,{name:n,host,room,code:c,players:{},hits:[],i:-1});
+  Object.assign(S,{name:n,host,room,code:c,players:{},hits:[],i:-1,auto:!!auto});
   room.on('join',m=>{
     if(!S.players[m.peer])S.players[m.peer]={n:String(m.data&&m.data.n||'لاعب').slice(0,16),s:0};
     if(m.isMe&&m.sameTab)S.me=m.peer;
@@ -227,6 +231,7 @@ async function enter(c,host){
   room.on('end',m=>{if(S.phase==='q'&&m.data.i===S.i)finish()});
   room.emit('join',{n});
   lobby();
+  if(S.auto&&S.host)startMM();
 }
 function applyHit(h){
   S.hits.push(h);
@@ -243,9 +248,47 @@ function plan(){
   try{localStorage.setItem('vs',JSON.stringify(seen.concat(p)))}catch(e){}
   return p;
 }
+function presence(){
+  try{
+    const db=fbDb(),me=db.ref('presence/'+Math.random().toString(36).slice(2,10));
+    db.ref('.info/connected').on('value',x=>{if(x.val()){me.onDisconnect().remove();me.set(Date.now())}});
+    db.ref('presence').on('value',x=>{const e=$('#onl');if(e)e.textContent='🟢 المتصلون الآن: '+x.numChildren()});
+  }catch(e){}
+}
+async function quick(){
+  const n=$('#nm').value.trim();
+  if(!n){$('#er').textContent='اكتب اسمك أولاً';return}
+  $('#er').textContent='جارٍ البحث عن لعبة...';
+  try{
+    const r=fbDb().ref('mm/open');
+    const res=await r.transaction(cur=>{
+      const now=Date.now();
+      if(cur&&cur.n<4&&now-cur.t<45000)return{c:cur.c,n:cur.n+1,t:cur.t};
+      return{c:code(),n:1,t:now};
+    });
+    const v=res.snapshot.val();
+    if(!v||!v.c)throw 0;
+    enter(v.c,v.n===1,true);
+  }catch(e){$('#er').textContent='تعذّر الاتصال، حاول مرة أخرى'}
+}
+function startMM(){
+  S.t0=Date.now();let last=0;
+  S.mm=setInterval(()=>{
+    const n=Object.keys(S.players).length,el=(Date.now()-S.t0)/1000;
+    const w=$('#wt');if(w)w.textContent=n<2?'بانتظار لاعبين آخرين...':(n>=4?'اكتمل العدد!':'ستبدأ اللعبة بعد '+Math.max(0,Math.ceil(25-el))+' ثانية');
+    if(el-last>=10){last=el;fbDb().ref('mm/open').transaction(c=>c&&c.c===S.code?{c:c.c,n:c.n,t:Date.now()}:c)}
+    if(n>=4||(el>=25&&n>=2)){
+      clearInterval(S.mm);
+      fbDb().ref('mm/open').transaction(c=>c&&c.c===S.code?null:c);
+      S.sel=new Set(CATS);S.tot=6;S.plan=plan();
+      S.room.emit('q',{i:S.plan[0],r:1,t:S.plan.length});
+    }
+  },1000);
+}
 function lobby(){
   S.phase='lobby';document.body.classList.remove('play');
   const list=Object.values(S.players).map(p=>`<div class="row"><span>${esc(p.n)}</span></div>`).join('')||'<p class="s">بانتظار اللاعبين...</p>';
+  if(S.auto){app.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:38px">🎲</div><b>نبحث عن منافسين عشوائيين...</b><p class="s" id="wt" style="margin:8px 0 0">${S.host?'بانتظار لاعبين آخرين...':'بانتظار بدء اللعبة'}</p></div><div class="card"><b>اللاعبون (${Object.keys(S.players).length})</b>${list}</div>`;return}
   const cfg=S.host?`<div class="card"><b>المواضيع</b><div class="chips2" id="cats" style="margin-top:8px">${CATS.map(c=>`<span class="chip ${S.sel.has(c)?'on':''}" data-c="${c}">${c}</span>`).join('')}</div>
   <p class="s" style="margin:14px 0 6px;text-align:right">عدد الأسئلة</p><div class="chips2" id="nn">${[5,8,12].map(n=>`<span class="chip ${S.tot===n?'on':''}" data-n="${n}">${n}</span>`).join('')}</div>
   <p class="s" style="margin:10px 0 0;font-size:13px">${QS.filter(q=>S.sel.has(q[2])).length} سؤالاً متاحاً في المواضيع المختارة</p></div>`:'';
@@ -306,9 +349,12 @@ function finish(){
   app.innerHTML=`<div class="card"><div class="q">${esc(q[0])}</div><div class="sg">${slots(true)}</div></div>
   <div class="card"><b>${last?'النتيجة النهائية':'الترتيب'}</b>${rows}</div>
   ${S.host?`<button id="nx">${last?'لعبة جديدة':'السؤال التالي'}</button>`:`<p class="s">${last?'انتهت اللعبة 🎉':'بانتظار المضيف...'}</p>`}`;
-  if(S.host)$('#nx').onclick=()=>{if(last)lobby();else S.room.emit('q',{i:S.plan[S.r],r:S.r+1,t:S.nq})};
+  const nx=$('#nx');
+  if(S.auto&&last){if(nx)nx.remove();const b=document.createElement('button');b.textContent='العودة للرئيسية';b.onclick=()=>location.reload();app.appendChild(b)}
+  else if(S.host&&nx)nx.onclick=()=>{if(last)lobby();else S.room.emit('q',{i:S.plan[S.r],r:S.r+1,t:S.nq})};
 }
 home();
+presence();
 </script>
 </body>
 </html>
