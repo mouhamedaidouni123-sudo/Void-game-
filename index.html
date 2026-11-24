@@ -47,15 +47,39 @@ button.o{background:var(--card)}
 .dock{position:sticky;bottom:0;background:var(--bg);padding:8px 0 6px;display:flex;gap:8px;z-index:5}
 .dock input{margin:0;flex:1}
 .dock button{width:auto;margin:0;padding:0 22px}
-.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.onl{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 14px}.play .onl{display:none}.av{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:#1c1a26;font-size:17px;border:2px solid var(--bd);vertical-align:middle;margin-inline-end:7px;flex:none}
-.av.big{width:72px;height:72px;font-size:38px;margin:0}
-.chip .av{width:22px;height:22px;font-size:13px;margin-inline-end:5px}.sg .av{width:20px;height:20px;font-size:12px;margin-inline-end:4px}
-.fr1{border-color:#ffd166;box-shadow:0 0 7px #ffd16699}.fr2{border-color:#9b6bff;box-shadow:0 0 11px #9b6bff}.fr3{border-color:#ff7a3d;box-shadow:0 0 11px #ff4d00}.fr4{border-color:#7dd3fc;box-shadow:0 0 11px #38bdf8}
-.fr5{border:2px solid transparent;background:linear-gradient(#1c1a26,#1c1a26) padding-box,conic-gradient(#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7,#f43f5e) border-box}
-.fr6{border-color:#c4a1ff;box-shadow:0 0 15px #7c3aed,inset 0 0 9px #7c3aed}
+.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.onl{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 14px}.play .onl{display:none}.av{position:relative;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;margin-inline-end:7px;flex:none;vertical-align:middle;font-size:18px;box-shadow:0 0 var(--gb,0px) var(--gl,transparent),0 3px 5px #0008}
+.av::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--g,linear-gradient(135deg,#3a3650,#1d1b27));animation:spin var(--sp,90s) linear infinite}
+.av i{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:calc(100% - 7px);height:calc(100% - 7px);border-radius:50%;font-style:normal;overflow:hidden;box-shadow:inset 0 3px 5px #ffffff59,inset 0 -5px 8px #00000080}
+.av i::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 22%,#ffffff66,transparent 46%)}
+.av.big{width:80px;height:80px;font-size:42px;margin:0}.av.big i{width:calc(100% - 10px);height:calc(100% - 10px)}
+.chip .av{width:24px;height:24px;font-size:13px;margin-inline-end:5px}.sg .av{width:22px;height:22px;font-size:12px;margin-inline-end:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pls{50%{box-shadow:0 0 calc(var(--gb,10px)*2.2) var(--gl),0 3px 5px #0008}}
+@keyframes flow{to{background-position:300% 0}}
+@keyframes flk{0%,100%{opacity:1}50%{opacity:.75}}
+.fr1{--g:conic-gradient(#fff6c2,#e0a82e,#8a5a00,#ffe27a,#e0a82e,#fff6c2);--gl:#ffcc33;--gb:8px}
+.fr2{--g:conic-gradient(#fff,#9aa5b1,#4b5563,#e5e7eb,#9aa5b1,#fff);--gl:#cbd5e1;--gb:7px;--sp:6s}
+.fr3{--g:conic-gradient(#ff2d00,#ff9500,#ffe000,#ff2d00);--gl:#ff5500;--gb:10px;--sp:1.8s;animation:pls 1.2s ease-in-out infinite}
+.fr4{--g:conic-gradient(#e0f7ff,#38bdf8,#0369a1,#e0f7ff);--gl:#38bdf8;--gb:9px;--sp:4s}
+.fr5{--g:conic-gradient(#a855f7,#3b82f6,#a855f7);--gl:#a855f7;--gb:12px;--sp:3s;animation:pls 1.8s ease-in-out infinite}
+.fr6{--g:conic-gradient(#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7,#f43f5e);--gl:#fff;--gb:6px;--sp:2.5s}
+.fr7{--g:conic-gradient(#000,#7c3aed,#000,#c084fc,#000,#7c3aed);--gl:#7c3aed;--gb:14px;--sp:2s;animation:pls 2s ease-in-out infinite}
+.fr8{--g:conic-gradient(#d1fae5,#10b981,#065f46,#6ee7b7,#10b981,#d1fae5);--gl:#10b981;--gb:9px;--sp:7s}
+.fr9{--g:conic-gradient(#ffd166,#a855f7,#ffd166,#6d28d9);--gl:#e9b949;--gb:11px;--sp:3.5s}
+.fr10{--g:conic-gradient(#fff,#fde047,#fff,#60a5fa,#fff);--gl:#fde047;--gb:12px;--sp:1s;animation:pls .8s ease-in-out infinite}
+.nc0{color:#f1eefa}.nc1{color:#ffd166}.nc2{color:#ff6b7a}.nc3{color:#4ade80}.nc4{color:#60a5fa}.nc5{color:#f472b6}
+.nc6,.nc7,.nc9,.nc10,.nc11,.nc12,.nc13{-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block;font-weight:700}
+.nc6{background-image:linear-gradient(90deg,#ff5e62,#ff9966,#ffd166)}
+.nc7{background-image:linear-gradient(90deg,#00c6ff,#0072ff,#7f5af0)}
+.nc8{color:#39ff14;text-shadow:0 0 6px #39ff14,0 0 14px #1fbf0a;animation:flk 1.6s infinite;font-weight:700}
+.nc9{background-image:linear-gradient(90deg,#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7,#f43f5e);background-size:300% 100%;animation:flow 3s linear infinite}
+.nc10{background-image:linear-gradient(90deg,#ff2d00,#ff9500,#ffe000,#ff9500,#ff2d00);background-size:300% 100%;animation:flow 2s linear infinite}
+.nc11{background-image:linear-gradient(90deg,#9bdcff,#fff,#38bdf8,#fff,#9bdcff);background-size:300% 100%;animation:flow 2.5s linear infinite}
+.nc12{background-image:linear-gradient(90deg,#7c3aed,#f472b6,#38bdf8,#7c3aed);background-size:300% 100%;animation:flow 3s linear infinite;filter:drop-shadow(0 0 6px #7c3aed)}
+.nc13{background-image:linear-gradient(90deg,#b8860b,#ffe27a,#fff6c2,#ffe27a,#b8860b);background-size:300% 100%;animation:flow 2.2s linear infinite;filter:drop-shadow(0 0 5px #e0a82e)}
 .gr3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .it{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;font-size:13px}
-.it .av{margin:0 auto 6px;width:44px;height:44px;font-size:24px}.it.sel{border-color:var(--pri);box-shadow:0 0 0 1px var(--pri)}.it b{display:block;margin-top:4px;color:var(--pri)}
+.it .av{margin:0 auto 8px;width:54px;height:54px;font-size:28px}.it.sel{border-color:var(--pri);box-shadow:0 0 0 1px var(--pri)}.it b{display:block;margin-top:4px;color:var(--pri)}
 </style>
 </head>
 <body>
@@ -175,14 +199,20 @@ const BANK={
 const CATS=Object.keys(BANK);
 const QS=[];
 CATS.forEach(c=>BANK[c].trim().split('\n').forEach(l=>{const p=l.split('|');QS.push([p[0].trim(),p[1].split(',').map(x=>x.split('/').map(y=>y.trim())),c])}));
-const AV=[["🙂",0],["🎮",0],["🐱",0],["🦊",0],["🐼",60],["🦁",80],["🐯",80],["🦅",100],["🤖",120],["👽",120],["🐉",150],["💀",150],["🥷",180],["🧙",180],["👑",200],["🦄",250]];
-const FR=[["بدون",0],["ذهبي",100],["بنفسجي",150],["ناري",200],["جليدي",200],["قوس قزح",300],["دوامة VOID",400]];
-const NC=[["أبيض","color:#f1eefa",0],["ذهبي","color:#ffd166",80],["أحمر","color:#ff5d6c",80],["أخضر","color:#4ade80",80],["أزرق","color:#60a5fa",80],["وردي","color:#f472b6",100],["بنفسجي","color:#c4a1ff",100],["متدرج","background:linear-gradient(90deg,#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent",250]];
+const AV=[["🙂",0,"linear-gradient(135deg,#60a5fa,#2563eb)"],["🎮",0,"linear-gradient(135deg,#a78bfa,#6d28d9)"],["🐱",0,"linear-gradient(135deg,#fdba74,#ea580c)"],["🦊",0,"linear-gradient(135deg,#fb923c,#dc2626)"],
+["🐼",60,"linear-gradient(135deg,#e5e7eb,#6b7280)"],["🐸",60,"linear-gradient(135deg,#86efac,#16a34a)"],["🐧",60,"linear-gradient(135deg,#7dd3fc,#1e3a8a)"],["🐯",80,"linear-gradient(135deg,#fcd34d,#c2410c)"],["🦁",80,"linear-gradient(135deg,#fde68a,#b45309)"],
+["🐺",100,"linear-gradient(135deg,#94a3b8,#1e293b)"],["🦅",100,"linear-gradient(135deg,#d6a35c,#5b3a12)"],["🤖",120,"linear-gradient(135deg,#67e8f9,#0e7490)"],["👽",120,"linear-gradient(135deg,#bef264,#3f6212)"],["🥷",150,"linear-gradient(135deg,#475569,#0f172a)"],
+["🧙",150,"linear-gradient(135deg,#c4b5fd,#4c1d95)"],["🦇",150,"linear-gradient(135deg,#6b21a8,#111827)"],["🧛",180,"linear-gradient(135deg,#f87171,#450a0a)"],["🦈",180,"linear-gradient(135deg,#38bdf8,#0c4a6e)"],["🐉",200,"linear-gradient(135deg,#4ade80,#991b1b)"],["💀",200,"linear-gradient(135deg,#a1a1aa,#27272a)"],
+["🔥",250,"linear-gradient(135deg,#fde047,#dc2626)"],["⚡",250,"linear-gradient(135deg,#fef08a,#2563eb)"],["🦄",300,"linear-gradient(135deg,#f9a8d4,#7c3aed)"],["🌌",350,"linear-gradient(135deg,#1e1b4b,#a855f7)"],["💎",400,"linear-gradient(135deg,#a5f3fc,#6366f1)"],["👑",500,"linear-gradient(135deg,#fde047,#b45309)"]];
+const FR=[["بدون",0],["ذهبي ثلاثي الأبعاد",100],["فضي لامع",120],["ناري",200],["جليدي",200],["نيون بنفسجي",250],["قوس قزح",300],["دوامة VOID",400],["زمرد",350],["ملكي",450],["كهرباء",500]];
+const NC=[["أبيض",0],["ذهبي",80],["أحمر",80],["أخضر",80],["أزرق",80],["وردي",100],["غروب",150],["محيط",150],["نيون أخضر",200],["قوس قزح متحرك",300],["ناري متحرك",300],["جليد لامع",350],["مجرة VOID",400],["ذهب لامع",450]];
+const avh=(a,f,big)=>`<span class="av${big?' big':''} fr${f}"><i style="background:${AV[a][2]}">${AV[a][0]}</i></span>`;
 let P={n:'',a:0,f:0,c:0,coins:0,own:{a:[0,1,2,3],f:[0],c:[0]}};
 try{const x=JSON.parse(localStorage.getItem('vp')||'null');if(x&&x.own)P=Object.assign(P,x)}catch(e){}
+if(P.v!==2){P.a=P.f=P.c=0;P.own={a:[0,1,2,3],f:[0],c:[0]};P.v=2}
 const save=()=>{try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}};
 const vp=d=>({a:AV[d&&d.a|0]?d.a|0:0,f:FR[d&&d.f|0]?d.f|0:0,c:NC[d&&d.c|0]?d.c|0:0});
-const pn=p=>`<span class="av fr${p.f|0}">${AV[p.a|0]?AV[p.a|0][0]:'🙂'}</span><span style="${(NC[p.c|0]||NC[0])[1]}">${esc(p.n)}</span>`;
+const pn=p=>avh(AV[p.a|0]?p.a|0:0,FR[p.f|0]?p.f|0:0)+`<span class="nc${NC[p.c|0]?p.c|0:0}">${esc(p.n)}</span>`;
 const T=60000,N=8;
 const norm=s=>String(s).replace(/[\u064B-\u065F\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase().replace(/^ال(?=.{3})/,'');
 const MAPS=QS.map(q=>{const m={};q[1].forEach((a,k)=>[].concat(a).forEach(v=>m[norm(v)]=k));return m});
@@ -201,8 +231,8 @@ function home(err){
     $('#sv').onclick=()=>{const v=$('#nm').value.trim();if(v){P.n=v;save();home()}};
     return;
   }
-  app.innerHTML=`<div class="card" style="text-align:center"><span class="av big fr${P.f}">${AV[P.a][0]}</span>
-  <div style="font-size:20px;font-weight:700;margin-top:8px"><span style="${NC[P.c][1]}">${esc(P.n)}</span></div>
+  app.innerHTML=`<div class="card" style="text-align:center">${avh(P.a,P.f,1)}
+  <div style="font-size:20px;font-weight:700;margin-top:8px"><span class="nc${P.c}">${esc(P.n)}</span></div>
   <div class="pt" style="margin:4px 0 10px">🪙 ${P.coins}</div>
   <button id="sh" class="o" style="text-align:center">🛍️ المتجر وتخصيص ملفك</button></div>
   <div class="card"><button id="rd">🎲 لعب عشوائي مع لاعبين</button>
@@ -218,10 +248,10 @@ function home(err){
 }
 function shop(tab){
   S.phase='shop';
-  const L=tab==='a'?AV:tab==='f'?FR:NC,pi=tab==='c'?2:1;
+  const L=tab==='a'?AV:tab==='f'?FR:NC,pi=1;
   const items=L.map((it,i)=>{
     const own=P.own[tab].includes(i),cur=P[tab]===i,price=it[pi];
-    const pre=tab==='c'?`<span style="${it[1]};font-weight:700;font-size:16px">${esc(P.n)}</span>`:`<span class="av fr${tab==='f'?i:P.f}">${AV[tab==='a'?i:P.a][0]}</span>`;
+    const pre=tab==='c'?`<span class="nc${i}" style="font-size:16px">${esc(P.n)}</span>`:avh(tab==='a'?i:P.a,tab==='f'?i:P.f);
     return `<div class="it ${cur?'sel':''}" data-i="${i}">${pre}<div>${tab==='a'?'':it[0]}</div><b>${cur?'✔ مستخدم':own?'اختيار':price===0?'مجاني':'🪙 '+price}</b></div>`;
   }).join('');
   const tabs=[['a','الصور'],['f','الإطارات'],['c','ألوان الأسماء']].map(t=>`<span class="chip ${t[0]===tab?'on':''}" data-t="${t[0]}">${t[1]}</span>`).join('');
