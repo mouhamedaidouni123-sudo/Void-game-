@@ -403,6 +403,21 @@ button.bad{background:linear-gradient(135deg,#dc2626,var(--bad));color:#fff;bord
 .ach-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:13px;background:var(--bg);border:1px solid var(--bd);margin-bottom:8px}
 .ach-item.done{border-color:#2fbf7166;background:#12241c}
 .ach-ico{font-size:26px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#ffffff0a;flex:none}
+
+/* ===== VOID progression update ===== */
+.progress-card{background:linear-gradient(135deg,#211638,#171321);border:1px solid #57417c;border-radius:16px;padding:13px;margin:10px 0}
+.xp-track{height:9px;background:#0d0b13;border-radius:99px;overflow:hidden;margin-top:8px}
+.xp-track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#e879f9);border-radius:99px;transition:width .3s}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.profile-stat{background:#0d0c12;border:1px solid var(--bd);border-radius:12px;padding:10px;text-align:center}
+.profile-stat b{display:block;font-size:20px;color:var(--pri)}
+.profile-stat small{color:var(--mut);font-size:11px}
+.history-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--bd);font-size:13px}
+.history-item:last-child{border-bottom:0}
+.boss-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:#3b1825;border:1px solid #a33a5a;color:#fecdd3;font-size:12px;font-weight:800}
+button:focus-visible,.chip:focus-visible,input:focus-visible{outline:2px solid #c4a1ff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
 </style>
 </head>
 <body>
@@ -437,14 +452,16 @@ async function fbJoin(c){
   const ref=_db.ref('rooms/'+c+'/ev');
   const off=(await _db.ref('.info/serverTimeOffset').once('value')).val()||0;
   const me=Math.random().toString(36).slice(2,10),t0=Date.now()+off-1500,H={};
-  ref.on('child_added',snap=>{
+  const childHandler=snap=>{
     const v=snap.val();
     if(!v||v.ts<t0)return;
     (H[v.t]||[]).forEach(f=>f({peer:v.p,data:v.d,isMe:v.p===me,sameTab:v.p===me}));
-  });
+  };
+  ref.on('child_added',childHandler);
   return{
     me,on:(t,f)=>{(H[t]=H[t]||[]).push(f)},
-    emit:(t,d)=>{ref.push({t,d,p:me,ts:firebase.database.ServerValue.TIMESTAMP})}
+    emit:(t,d)=>ref.push({t,d,p:me,ts:firebase.database.ServerValue.TIMESTAMP}),
+    close:()=>ref.off('child_added',childHandler)
   };
 }
 </script>
@@ -630,7 +647,7 @@ const FR=[["بدون",0],["ذهبي ثلاثي الأبعاد",100],["فضي ل�
 const NC=[["أبيض",0],["ذهبي",80],["أحمر",80],["أخضر",80],["أزرق",80],["وردي",100],["غروب",150],["محيط",150],["نيون أخضر",200],["قوس قزح متحرك",300],["ناري متحرك",300],["جليد لامع",350],["مجرة VOID",400],["ذهب لامع",450],["المطوّر",0]];
 const avh=(a,f,big)=>`<span class="av${big?' big':''} fr${f}"><i style="background:${AV[a][2]}">${AV[a][0]}</i></span>`;
 
-let P={n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{}};
+let P={n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',history:[]};
 try{
   const x=JSON.parse(localStorage.getItem('vp')||'null');
   if(x&&x.own)P=Object.assign(P,x);
@@ -641,6 +658,13 @@ P.lv=P.lv||{};
 P.best=P.best||{};
 P.stats=Object.assign({g:0,w:0,ans:0,maxCombo:0},P.stats||{});
 P.ach=P.ach||{};
+P.xp=Math.max(0,Number(P.xp)||0);
+P.streak=Math.max(0,Number(P.streak)||0);
+P.lastDaily=typeof P.lastDaily==='string'?P.lastDaily:'';
+P.history=Array.isArray(P.history)?P.history.slice(-30):[];
+P.stats=Object.assign({g:0,w:0,ans:0,maxCombo:0},P.stats||{});
+P.coins=Math.max(0,Number(P.coins)||0);
+
 
 /* ===== نظام التحقق الخاص بالمطور ECDSA ===== */
 const OWNER_PUB={"kty":"EC","crv":"P-256","x":"fzPjduY-8PtF_gAZvhZ1CICA1C32-l62oiB4ijjnAxU","y":"m54ac_EUpwedxs7cTVAM4S202DyOi6P_PPgPHq6NMV0"};
@@ -691,6 +715,62 @@ async function unlock(){
 }
 
 const save=()=>{try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}};
+const localDay=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const dayBefore=key=>{const d=new Date(key+'T12:00:00');d.setDate(d.getDate()-1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
+const playerLevel=()=>Math.floor((P.xp||0)/250)+1;
+const xpIntoLevel=()=>(P.xp||0)%250;
+function awardXP(amount,reason){
+  const before=playerLevel();
+  P.xp=Math.max(0,(P.xp||0)+Math.max(0,Math.floor(amount||0)));
+  const gained=playerLevel()-before;
+  if(gained>0)toast(`ارتقيت إلى المستوى ${playerLevel()}! 🎉`);
+  return gained;
+}
+function addHistory(mode,score,passed,coins){
+  P.history=Array.isArray(P.history)?P.history:[];
+  P.history.unshift({mode:String(mode||'مباراة'),score:Math.max(0,score|0),passed:!!passed,coins:Math.max(0,coins|0),date:new Date().toISOString()});
+  P.history=P.history.slice(0,30);
+}
+function updateDailyStreak(dayKey){
+  if(P.lastDaily===dayKey)return false;
+  P.streak=P.lastDaily===dayBefore(dayKey)?(P.streak||0)+1:1;
+  P.lastDaily=dayKey;
+  return true;
+}
+function showProfile(){
+  const hist=(P.history||[]).slice(0,8).map(h=>`<div class="history-item"><span>${esc(h.mode)} · ${new Date(h.date).toLocaleDateString('ar')}</span><b>${h.score} نقطة</b></div>`).join('')||'<p class="s">لا توجد مباريات مسجلة بعد.</p>';
+  const xp=xpIntoLevel(),lvl=playerLevel();
+  const m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<div class="mc">
+    <h3>👤 ملف اللاعب</h3>
+    <div class="progress-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <b>${esc(P.n||'لاعب')}</b><span class="chip">المستوى ${lvl}</span>
+      </div>
+      <div class="top" style="margin-top:8px"><span>⭐ الخبرة XP</span><b>${P.xp||0} / ${lvl*250}</b></div>
+      <div class="xp-track"><i style="width:${xp/250*100}%"></i></div>
+      <div class="top" style="margin-top:7px"><span>🔥 سلسلة التحدي اليومي</span><b>${P.streak||0} يوم</b></div>
+    </div>
+    <div class="profile-grid">
+      <div class="profile-stat"><b>${P.coins}</b><small>العملات</small></div>
+      <div class="profile-stat"><b>${P.stats.w||0}</b><small>الانتصارات</small></div>
+      <div class="profile-stat"><b>${P.stats.g||0}</b><small>المباريات</small></div>
+      <div class="profile-stat"><b>${P.stats.maxCombo||0}</b><small>أفضل سلسلة</small></div>
+    </div>
+    <h3 style="margin-top:16px">🕘 آخر النتائج</h3>
+    ${hist}
+    <button id="profile-close" class="o">إغلاق</button>
+  </div>`;
+  m.querySelector('#profile-close').onclick=()=>m.remove();
+  document.body.appendChild(m);
+}
+function showLocalRecords(){
+  const rows=(P.history||[]).slice().sort((a,b)=>b.score-a.score).slice(0,10).map((h,i)=>`<div class="history-item"><span>${i+1}. ${esc(h.mode)}</span><b>${h.score} نقطة</b></div>`).join('')||'<p class="s">أكمل مباراة لتسجيل أول نتيجة.</p>';
+  const m=document.createElement('div');m.className='modal';
+  m.innerHTML=`<div class="mc"><h3>🏆 أفضل نتائج هذا الجهاز</h3><p>هذه قائمة محلية محفوظة على هذا الجهاز، وليست ترتيباً عالمياً بين اللاعبين.</p>${rows}<button class="o">إغلاق</button></div>`;
+  m.querySelector('button').onclick=()=>m.remove();
+  document.body.appendChild(m);
+}
 const vp=d=>({a:AV[d&&d.a|0]?d.a|0:0,f:FR[d&&d.f|0]?d.f|0:0,c:NC[d&&d.c|0]?d.c|0:0});
 const pn=p=>{const ok=!!p.ok,f=ef(FR[p.f|0]?p.f|0:0,ok),c=ec(NC[p.c|0]?p.c|0:0,ok);return avh(AV[p.a|0]?p.a|0:0,f)+`<span class="nc${c}">${esc(p.n)}</span>`+(ok?'<span class="vb">✓</span>':'')};
 const T=60000,N=8;
@@ -833,7 +913,7 @@ function home(err){
   const done=Object.keys(P.lv||{}).length;
   const totalStars=Object.values(P.lv||{}).reduce((s,v)=>s+v,0);
   const off=!online();
-  const todayKey=new Date().toISOString().slice(0,10);
+  const todayKey=localDay();
   const dailyDone=P.daily===todayKey;
 
   app.innerHTML=`
@@ -883,6 +963,17 @@ function home(err){
       <span class="tile-ico">👑</span>
     </button>
   </div>
+  <div class="progress-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <b>⭐ المستوى ${playerLevel()}</b><span class="pt">${P.xp||0} XP</span>
+    </div>
+    <div class="xp-track"><i style="width:${xpIntoLevel()/250*100}%"></i></div>
+    <div class="top" style="margin-top:7px"><span>🔥 سلسلة يومية: ${P.streak||0} يوم</span><span>${xpIntoLevel()}/250 XP للمستوى التالي</span></div>
+  </div>
+  <div class="chips2" style="justify-content:center;margin:0 0 12px">
+    <span class="chip" id="profile-btn">👤 ملف اللاعب</span>
+    <span class="chip" id="records-btn">🏆 أفضل النتائج</span>
+  </div>
 
   <div class="card">
     <div style="display:flex;gap:8px">
@@ -906,6 +997,8 @@ function home(err){
   $('#rd').onclick=quick;
   $('#jn').onclick=()=>enter($('#cd').value.trim().toLowerCase(),false);
   $('#sh').onclick=()=>shop('a');
+  $('#profile-btn').onclick=showProfile;
+  $('#records-btn').onclick=showLocalRecords;
   $('#st-btn').onclick=showStatsModal;
   $('#ts').onclick=()=>{P.snd=P.snd===false;save();home()};
   $('#tv').onclick=()=>{P.vib=P.vib===false;save();home()};
@@ -933,7 +1026,7 @@ function lvDef(L){
   const tm=Math.max(28,54-Math.floor(L*0.65));
   return{L,world,cat:L>30?null:world.cat,nq,tm,sub};
 }
-const lvTg=d=>d.nq*(11+Math.floor(d.L*0.65));
+const lvTg=d=>Math.ceil(d.nq*(11+Math.floor(d.L*0.65))*(d.sub===6?1.18:1));
 
 function lvQs(d,seedOffset=0){
   let x=(d.L*7919+13)+seedOffset;
@@ -996,6 +1089,7 @@ function intro(L){
   app.innerHTML=`
   <div class="card" style="text-align:center">
     <div class="chip" style="margin-bottom:8px">${d.world.ico} ${d.world.name}</div>
+    ${d.sub===6?'<div class="boss-tag">👑 تحدي زعيم العالم</div>':''}
     <div class="big">المرحلة ${L}</div>
     <p class="s" style="margin-top:6px">${d.cat?'التصنيف: <b>'+d.cat+'</b>':'🔥 تحدي شامل لجميع التصنيفات'}</p>
     <div class="row"><span>📋 عدد الأسئلة المطلوبة لتجاوز المرحلة</span><b style="color:var(--pri);font-size:17px">${d.nq} أسئلة</b></div>
@@ -1012,7 +1106,7 @@ function intro(L){
 
 /* ===== التحدي اليومي والتدريب الحر ===== */
 function startDailyChallenge(){
-  const todayKey=new Date().toISOString().slice(0,10);
+  const todayKey=localDay();
   let seed=0;for(let i=0;i<todayKey.length;i++)seed=(seed*31+todayKey.charCodeAt(i))|0;
   const d={L:0,world:{ico:'📅',name:'التحدي اليومي'},cat:null,nq:4,tm:45,isDaily:true,todayKey};
   const tg=65;
@@ -1111,7 +1205,7 @@ function soloQ(){
   SS.dl=Date.now()+SS.totMs;
   S.phase='solo';document.body.classList.add('play');
   const q=QS[SS.qid];
-  const headerTitle=SS.d.isDaily?'📅 التحدي اليومي':SS.d.isPractice?'🎓 تدريب حر':`مرحلة ${SS.L}`;
+  const headerTitle=SS.d.isDaily?'📅 التحدي اليومي':SS.d.isPractice?'🎓 تدريب حر':(SS.d.sub===6?`👑 زعيم العالم · ${SS.L}`:`مرحلة ${SS.L}`);
 
   app.innerHTML=`
   <div class="card" style="margin-bottom:8px;padding:12px">
@@ -1254,7 +1348,7 @@ function soloResult(){
   if(SS.d.isDaily){
     if(pass&&P.daily!==SS.d.todayKey){
       P.daily=SS.d.todayKey;
-      earn+=60;
+      if(updateDailyStreak(SS.d.todayKey))earn+=60;
     }
   }else if(!SS.d.isPractice){
     P.lv=P.lv||{};
@@ -1269,6 +1363,9 @@ function soloResult(){
   P.coins+=earn;
   P.stats.g=(P.stats.g||0)+1;
   if(pass)P.stats.w=(P.stats.w||0)+1;
+  const xpEarned=Math.max(5,Math.floor(SS.score/3)+(pass?25:0));
+  awardXP(xpEarned,SS.d.isDaily?'التحدي اليومي':'اللعب الفردي');
+  addHistory(SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`المرحلة ${SS.L}`,SS.score,pass,earn);
   checkAchievements();
   save();
 
@@ -1287,6 +1384,8 @@ function soloResult(){
     <div class="row"><span>نقاطك المحققة</span><b style="font-size:17px">${SS.score}</b></div>
     <div class="row"><span>الهدف المطلوب (${SS.d.nq} أسئلة)</span><b>${SS.tg}</b></div>
     <div class="row"><span>العملات المكتسبة</span><b class="pt" style="font-size:16px">+${earn} 🪙</b></div>
+    <div class="row"><span>الخبرة المكتسبة</span><b style="color:var(--pri)">+${xpEarned} XP</b></div>
+    ${SS.d.isDaily&&pass?`<div class="row"><span>سلسلة التحدي اليومي</span><b>🔥 ${P.streak} يوم</b></div>`:''}
   </div>
   ${!SS.d.isDaily&&!SS.d.isPractice&&pass&&SS.L<LV?`<button id="nl">الانتقال للمرحلة ${SS.L+1} ←</button>`:''}
   <button id="rt" class="o" style="text-align:center;margin-top:8px">${pass?'إعادة اللعب لتحسين النجوم':'حاول مرة أخرى 🔄'}</button>
@@ -1427,6 +1526,10 @@ async function enter(c,host,auto){
       toast(m.data.r==='d'?'سبقك أحدهم لهذه الإجابة 😅':'ليست من الإجابات ❌');
     }
   });
+  room.on('leave',m=>{
+    if(S.players[m.peer])delete S.players[m.peer];
+    if(S.phase==='lobby')lobby();else if(S.phase==='q')draw();
+  });
   room.on('end',m=>{if(S.phase==='q'&&m.data.i===S.i)finish()});
   let o='';if(O){try{o=await signPeer(room.me)}catch(e){}}
   room.emit('join',{n,a:P.a,f:P.f,c:P.c,o});
@@ -1434,7 +1537,20 @@ async function enter(c,host,auto){
   if(S.auto&&S.host)startMM();
 }
 
+function leaveRoom(){
+  if(S.room){
+    try{S.room.emit('leave',{})}catch(e){}
+    try{S.room.close()}catch(e){}
+  }
+  clearInterval(S.tm);clearInterval(S.mm);
+  S.room=null;S.players={};S.hits=[];S.phase='home';
+  document.body.classList.remove('play');
+  home();
+}
 function applyHit(h){
+  if(!h||!Number.isInteger(h.k)||h.k<0||h.k>=N||S.hits.some(x=>x.k===h.k)||S.hits.length>=N)return;
+  if(!S.players[h.p])S.players[h.p]={n:String(h.n||'لاعب').slice(0,16),s:0};
+  h.pts=Math.max(0,Math.min(16,Number(h.pts)||0));
   S.hits.push(h);
   S.players[h.p].s+=h.pts;
   if(h.p===S.me){
@@ -1513,7 +1629,7 @@ function lobby(){
   <div class="card"><b>اللاعبون (${Object.keys(S.players).length})</b>${list}</div>${cfg}
   ${S.host?'<button id="go">ابدأ اللعبة 🚀</button>':'<p class="s">بانتظار المضيف ليبدأ...</p>'}
   <button id="lv-rm" class="o" style="text-align:center;margin-top:8px">مغادرة الغرفة</button>`;
-  $('#lv-rm').onclick=()=>location.reload();
+  $('#lv-rm').onclick=leaveRoom;
   if(S.host){
     app.querySelectorAll('#cats .chip').forEach(e=>e.onclick=()=>{const c=e.dataset.c;if(S.sel.has(c)){if(S.sel.size>1)S.sel.delete(c)}else S.sel.add(c);lobby()});
     app.querySelectorAll('#nn .chip').forEach(e=>e.onclick=()=>{S.tot=+e.dataset.n;lobby()});
@@ -1622,6 +1738,9 @@ function finish(){
     P.coins+=S.earn;
     P.stats.g=(P.stats.g||0)+1;
     if(rank[0]===me)P.stats.w=(P.stats.w||0)+1;
+    const xpEarned=Math.max(10,Math.floor(me.s/3)+(rank[0]===me?30:10));
+    awardXP(xpEarned,'مباراة جماعية');
+    addHistory('مباراة جماعية',me.s,rank[0]===me,S.earn);
     checkAchievements();
     save();sfx.win();confetti();vib([40,60,40]);
   }
@@ -1632,7 +1751,7 @@ function finish(){
   const nx=$('#nx');
   if(S.auto&&last){
     if(nx)nx.remove();
-    const b=document.createElement('button');b.textContent='العودة للرئيسية';b.onclick=()=>location.reload();app.appendChild(b);
+    const b=document.createElement('button');b.textContent='العودة للرئيسية';b.onclick=leaveRoom;app.appendChild(b);
   }else if(S.host&&nx){
     nx.onclick=()=>{if(last)lobby();else S.room.emit('q',{i:S.plan[S.r],r:S.r+1,t:S.nq})};
   }
