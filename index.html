@@ -419,6 +419,17 @@ button:focus-visible,.chip:focus-visible,input:focus-visible{outline:2px solid #
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
 
+/* ===== VOID missions and speed challenge ===== */
+.t5{background:linear-gradient(135deg,#334155,#0f766e)}
+.mission-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--bd)}
+.mission-row:last-child{border-bottom:0}
+.mission-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:#ffffff0b;font-size:20px;flex:none}
+.mission-info{flex:1;min-width:0}
+.mission-info b{display:block;font-size:13px}
+.mission-info small{color:var(--mut);font-size:11px}
+.mission-track{height:5px;background:#080d15;border-radius:9px;overflow:hidden;margin-top:6px}
+.mission-track i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--pri));border-radius:9px}
+.mission-claim{width:auto;margin:0;padding:7px 10px;font-size:12px;white-space:nowrap}
 /* ===== VOID premium interface refresh ===== */
 :root{--bg:#080b12;--card:#101722;--card2:#151f2d;--tx:#edf3fb;--mut:#8b9aaf;--pri:#8b7cff;--pri2:#635bdb;--acc:#55d6e8;--ok:#43c99a;--bad:#f06f83;--gold:#d8b66a;--bd:#263447;color-scheme:dark}
 body{background:radial-gradient(ellipse at 50% -18%,rgba(68,83,151,.25),transparent 48%),radial-gradient(ellipse at 100% 60%,rgba(26,119,145,.08),transparent 38%),var(--bg);letter-spacing:.01em}
@@ -457,6 +468,18 @@ input:focus{border-color:#8b7cff;box-shadow:0 0 0 3px #8b7cff20}
 .bar{background:#202c3c}.bar i{background:linear-gradient(90deg,#6f69dc,#58c5d7)}
 .pw-btn{background:#131e2c;border-color:#304158}.pw-btn.active{background:#302b1a;border-color:#b99a58;color:#ead7a5}
 .cr{color:#74849b}
+
+
+/* Realistic-inspired 3D portrait avatars */
+.av3d-wrap{overflow:visible;background:transparent!important}
+.av3d-wrap::before{inset:-2px;background:var(--g,linear-gradient(135deg,#52627c,#172235));filter:drop-shadow(0 4px 8px #0009)}
+.av3d-wrap i{width:calc(100% - 5px);height:calc(100% - 5px);background:#172235!important;overflow:hidden;border-radius:50%;box-shadow:inset 0 2px 5px #ffffff40,inset 0 -5px 10px #0009}
+.av3d-wrap i::after{display:none}
+.av3d-wrap .portrait3d{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 2px #0008)}
+.av3d-wrap.big i{width:calc(100% - 9px);height:calc(100% - 9px)}
+.it .av3d-wrap{width:64px;height:64px;margin:0 auto 8px}
+.chip .av3d-wrap{width:22px;height:22px}
+.sg .av3d-wrap{width:20px;height:20px}
 
 </style>
 </head>
@@ -507,6 +530,7 @@ async function fbJoin(c){
 </script>
 
 <script>
+
 /* ===== خلفية النجوم المتحركة في شعار VOID ===== */
 (function initHeroStars(){
   const cv=document.getElementById('stars-cv');
@@ -686,7 +710,19 @@ const AV=[
 ];
 const FR=[["بدون",0],["ذهبي ثلاثي الأبعاد",100],["فضي لامع",120],["ناري",200],["جليدي",200],["نيون بنفسجي",250],["قوس قزح",300],["دوامة VOID",400],["زمرد",350],["ملكي",450],["كهرباء",500],["لهب الشمس البنفسجي",0]];
 const NC=[["أبيض",0],["ذهبي",80],["أحمر",80],["أخضر",80],["أزرق",80],["وردي",100],["غروب",150],["محيط",150],["نيون أخضر",200],["قوس قزح متحرك",300],["ناري متحرك",300],["جليد لامع",350],["مجرة VOID",400],["ذهب لامع",450],["المطوّر",0]];
-const avh=(a,f,big)=>`<span class="av${big?' big':''} fr${f}"><i style="background:${AV[a][2]}">${AV[a][0]}</i></span>`;
+const AV3D=[
+  ['#f2c6a0','#29212a','#171923','#5b8fa8'],['#d9a47d','#171717','#262a3b','#9b6a4e'],['#f4d0b1','#5b3828','#1e293b','#8c5d7e'],['#bd815e','#211b19','#26384b','#a77d54'],
+  ['#e8b995','#b88b42','#29253c','#5c8c76'],['#f1c9a5','#8b4d32','#202d42','#8c6b9f'],['#9b6248','#171717','#25354a','#a56e52'],['#f0c9a8','#c4c7ce','#292d3c','#6d91ad'],
+  ['#d7a17c','#33231f','#283b42','#a66a55'],['#f4d4b6','#7a2029','#25263b','#6c9c85'],['#b87958','#29221f','#34415b','#b18b59'],['#eac09b','#51402e','#202b3a','#9a7191'],
+  ['#f0c9a8','#171717','#182b42','#4e8e9d'],['#c98e6c','#6a3829','#293044','#b18a63'],['#f2c9a5','#a7a7a7','#23273b','#718d9d'],['#a96f50','#211b1a','#263a35','#a47b50'],
+  ['#e8b99a','#3b2b24','#1c3444','#6e8ba8'],['#f2d0b2','#171717','#34243b','#9d6b70'],['#c58a69','#38251d','#202b3d','#b28a55'],['#f1c7a3','#70452f','#25354c','#6f9b91']
+];
+function avatar3d(a){
+  const v=AV3D[((a|0)%AV3D.length+AV3D.length)%AV3D.length],skin=v[0],hair=v[1],shirt=v[2],accent=v[3];
+  const styles=[`<path d="M23 43Q17 8 51 8Q84 8 78 46L70 30Q49 20 30 34Z"/>`,`<path d="M20 43Q17 13 50 12Q82 12 80 43L74 29Q68 39 65 40L62 27Q43 37 27 30Z"/>`,`<path d="M22 39Q22 9 50 9Q78 9 78 39L70 27Q52 18 31 29Z"/>`,`<path d="M20 42Q16 11 50 10Q84 11 80 42L73 30Q66 23 59 24L55 32 42 24 29 33Z"/>`];
+  return `<svg class="portrait3d" viewBox="0 0 100 100" role="img" aria-label="شخصية ثلاثية الأبعاد"><defs><linearGradient id="skin${a}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".52"/><stop offset=".38" stop-color="${skin}"/><stop offset="1" stop-color="#694331"/></linearGradient><linearGradient id="shirt${a}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${accent}"/><stop offset="1" stop-color="${shirt}"/></linearGradient><radialGradient id="light${a}" cx=".28" cy=".18" r=".8"><stop stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></radialGradient></defs><ellipse cx="50" cy="97" rx="43" ry="29" fill="url(#shirt${a})"/><path d="M40 65h20v17H40z" fill="url(#skin${a})"/><ellipse cx="50" cy="43" rx="25" ry="30" fill="url(#skin${a})"/><path d="M25 43Q20 8 50 8Q82 8 77 45L70 29Q50 18 30 31Z" fill="${hair}"/>${styles[a%4]}<path d="M34 45q5-4 10 0M56 45q5-4 10 0" fill="none" stroke="#34251f" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="40" cy="49" rx="2.5" ry="3" fill="#171923"/><ellipse cx="60" cy="49" rx="2.5" ry="3" fill="#171923"/><path d="M50 49l-3 9 5 1" fill="none" stroke="#8a5542" stroke-width="1.8" stroke-linecap="round"/><path d="M43 64q7 5 14 0" fill="none" stroke="#743e3a" stroke-width="2" stroke-linecap="round"/><ellipse cx="50" cy="50" rx="25" ry="42" fill="url(#light${a})"/><path d="M27 39q-3 17 2 27M73 39q3 17-2 27" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/></svg>`;
+}
+const avh=(a,f,big)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${avatar3d(a)}</i></span>`;
 
 let P={n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',history:[]};
 try{
@@ -772,6 +808,34 @@ function addHistory(mode,score,passed,coins){
   P.history.unshift({mode:String(mode||'مباراة'),score:Math.max(0,score|0),passed:!!passed,coins:Math.max(0,coins|0),date:new Date().toISOString()});
   P.history=P.history.slice(0,30);
 }
+function ensureDailyMissions(){
+  const key=localDay();
+  if(!P.missions||P.missions.date!==key)P.missions={date:key,answers:0,matches:0,daily:0,claimed:{}};
+  P.missions.claimed=P.missions.claimed||{};
+  return P.missions;
+}
+function showMissions(){
+  const mdata=ensureDailyMissions();
+  const defs=[
+    {id:'answers',ico:'🧠',title:'عقل متّقد',desc:'اكتشف 10 إجابات صحيحة اليوم',goal:10,reward:35,value:mdata.answers},
+    {id:'matches',ico:'🎮',title:'لاعب نشيط',desc:'أكمل مباراتين اليوم',goal:2,reward:45,value:mdata.matches},
+    {id:'daily',ico:'📅',title:'تحدي اليوم',desc:'أكمل التحدي اليومي بنجاح',goal:1,reward:60,value:mdata.daily}
+  ];
+  const rows=defs.map(d=>{
+    const value=Math.min(d.goal,d.value||0),done=value>=d.goal,claimed=!!mdata.claimed[d.id];
+    return `<div class="mission-row"><div class="mission-icon">${d.ico}</div><div class="mission-info"><b>${d.title}</b><small>${d.desc} · ${value}/${d.goal}</small><div class="mission-track"><i style="width:${value/d.goal*100}%"></i></div></div>${claimed?'<span class="chip">تم الاستلام</span>':done?`<button class="mission-claim" data-claim="${d.id}" data-reward="${d.reward}">+${d.reward} 🪙</button>`:`<span class="chip">+${d.reward} 🪙</span>`}</div>`;
+  }).join('');
+  const modal=document.createElement('div');modal.className='modal';
+  modal.innerHTML=`<div class="mc"><h3>🎯 مهام اليوم</h3><p>أنجز المهام لتحصل على عملات إضافية. تتجدد المهام عند بداية يوم جديد.</p>${rows}<button class="o" id="mission-close">إغلاق</button></div>`;
+  modal.querySelector('#mission-close').onclick=()=>modal.remove();
+  modal.querySelectorAll('[data-claim]').forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.claim,def=defs.find(x=>x.id===id);
+    if(!def||mdata.claimed[id]||(mdata[id]||0)<def.goal)return;
+    mdata.claimed[id]=true;P.coins+=def.reward;awardXP(10,'مهمة يومية');save();modal.remove();showMissions();toast(`حصلت على ${def.reward} عملة!`);
+  });
+  document.body.appendChild(modal);
+}
+
 function updateDailyStreak(dayKey){
   if(P.lastDaily===dayKey)return false;
   P.streak=P.lastDaily===dayBefore(dayKey)?(P.streak||0)+1:1;
@@ -805,12 +869,26 @@ function showProfile(){
   m.querySelector('#profile-close').onclick=()=>m.remove();
   document.body.appendChild(m);
 }
-function showLocalRecords(){
+const leaderboardId=()=>{let id=localStorage.getItem('void_lb_id');if(!id){id='v_'+Math.random().toString(36).slice(2,12);localStorage.setItem('void_lb_id',id)}return id};
+async function publishScore(score,mode){
+  if(!online()||!P.n||!Number.isFinite(score))return;
+  try{
+    const id=leaderboardId(),ref=fbDb().ref('leaderboard/'+id);
+    const snap=await ref.once('value'),old=snap.val();
+    if(!old||score>Number(old.score||0))await ref.set({name:String(P.n).slice(0,16),score:Math.max(0,Math.floor(score)),mode:String(mode||'مباراة').slice(0,30),updatedAt:firebase.database.ServerValue.TIMESTAMP});
+  }catch(e){console.warn('Leaderboard unavailable',e)}
+}
+async function showLocalRecords(){
   const rows=(P.history||[]).slice().sort((a,b)=>b.score-a.score).slice(0,10).map((h,i)=>`<div class="history-item"><span>${i+1}. ${esc(h.mode)}</span><b>${h.score} نقطة</b></div>`).join('')||'<p class="s">أكمل مباراة لتسجيل أول نتيجة.</p>';
   const m=document.createElement('div');m.className='modal';
-  m.innerHTML=`<div class="mc"><h3>🏆 أفضل نتائج هذا الجهاز</h3><p>هذه قائمة محلية محفوظة على هذا الجهاز، وليست ترتيباً عالمياً بين اللاعبين.</p>${rows}<button class="o">إغلاق</button></div>`;
-  m.querySelector('button').onclick=()=>m.remove();
+  m.innerHTML=`<div class="mc"><h3>🏆 لوحة الترتيب</h3><div class="chips"><span class="chip on" id="lb-local">نتائجي</span><span class="chip" id="lb-global">عالمي</span></div><div id="lb-content">${rows}</div><p class="s" style="font-size:11px">يُعرض الاسم المستعار وأفضل نتيجة فقط.</p><button class="o" id="lb-close">إغلاق</button></div>`;
   document.body.appendChild(m);
+  m.querySelector('#lb-close').onclick=()=>m.remove();
+  const content=m.querySelector('#lb-content'),local=m.querySelector('#lb-local'),global=m.querySelector('#lb-global');
+  local.onclick=()=>{local.classList.add('on');global.classList.remove('on');content.innerHTML=rows};
+  global.onclick=async()=>{global.classList.add('on');local.classList.remove('on');content.innerHTML='<p class="s">جارٍ تحميل الترتيب...</p>';
+    try{if(!online())throw new Error('offline');const snap=await fbDb().ref('leaderboard').orderByChild('score').limitToLast(50).once('value');const data=[];snap.forEach(x=>data.push({id:x.key,...x.val()}));data.sort((a,b)=>b.score-a.score);content.innerHTML=data.length?data.map((x,i)=>`<div class="history-item"><span>${i+1}. ${esc(x.name||'لاعب')} ${x.id===leaderboardId()?'(أنت)':''}</span><b>${Number(x.score)||0}</b></div>`).join(''):'<p class="s">لا توجد نتائج بعد.</p>';
+    }catch(e){content.innerHTML='<p class="s">تعذر تحميل الترتيب. قد تحتاج قواعد Firebase إلى السماح بالقراءة والكتابة لمسار leaderboard.</p>'}}
 }
 const vp=d=>({a:AV[d&&d.a|0]?d.a|0:0,f:FR[d&&d.f|0]?d.f|0:0,c:NC[d&&d.c|0]?d.c|0:0});
 const pn=p=>{const ok=!!p.ok,f=ef(FR[p.f|0]?p.f|0:0,ok),c=ec(NC[p.c|0]?p.c|0:0,ok);return avh(AV[p.a|0]?p.a|0:0,f)+`<span class="nc${c}">${esc(p.n)}</span>`+(ok?'<span class="vb">✓</span>':'')};
@@ -1030,6 +1108,11 @@ function home(err){
       <span class="tile-ico">02</span>
     </button>
 
+    <button class="tile t5" id="speed-btn">
+      <div class="tile-info"><b>تحدي السرعة</b><small>6 أسئلة · 25 ثانية لكل سؤال · اختبر سرعة بديهتك</small></div>
+      <span class="tile-ico">03</span>
+    </button>
+
     <button class="tile t2" id="rd" ${off?'disabled':''}>
       <div class="tile-info">
         <b>مباراة عشوائية</b>
@@ -1054,6 +1137,7 @@ function home(err){
     <div class="top" style="margin-top:7px"><span>سلسلة يومية: ${P.streak||0} يوم</span><span>${xpIntoLevel()}/250 XP للمستوى التالي</span></div>
   </div>
   <div class="chips2" style="justify-content:center;margin:0 0 12px">
+    <span class="chip" id="missions-btn">مهام اليوم</span>
     <span class="chip" id="profile-btn">ملف اللاعب</span>
     <span class="chip" id="records-btn">أفضل النتائج</span>
   </div>
@@ -1075,6 +1159,8 @@ function home(err){
 
   $('#of').onclick=levels;
   $('#dl-btn').onclick=startDailyChallenge;
+  $('#speed-btn').onclick=startSpeedChallenge;
+  $('#missions-btn').onclick=showMissions;
   $('#pr-btn').onclick=practiceSetup;
   $('#cr').onclick=()=>enter(code(),true);
   $('#rd').onclick=quick;
@@ -1198,6 +1284,14 @@ function startDailyChallenge(){
   soloQ();
 }
 
+function startSpeedChallenge(){
+  const pool=QS.map((q,i)=>i);
+  for(let j=pool.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[pool[j],pool[k]]=[pool[k],pool[j]]}
+  const d={L:0,world:{ico:'⚡',name:'تحدي السرعة'},cat:null,nq:6,tm:25,isSpeed:true};
+  SS={L:0,d,tg:105,qs:pool.slice(0,6),i:0,score:0,hits:[],hinted:[],combo:0,x2:false};
+  soloQ();
+}
+
 function practiceSetup(){
   let selCat='الكل',selNq=3;
   const render=()=>{
@@ -1288,7 +1382,7 @@ function soloQ(){
   SS.dl=Date.now()+SS.totMs;
   S.phase='solo';document.body.classList.add('play');
   const q=QS[SS.qid];
-  const headerTitle=SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'تدريب حر':(SS.d.sub===6?`👑 زعيم العالم · ${SS.L}`:`مرحلة ${SS.L}`);
+  const headerTitle=SS.d.isDaily?'التحدي اليومي':SS.d.isSpeed?'تحدي السرعة':SS.d.isPractice?'تدريب حر':(SS.d.sub===6?`👑 زعيم العالم · ${SS.L}`:`مرحلة ${SS.L}`);
 
   app.innerHTML=`
   <div class="card" style="margin-bottom:8px;padding:12px">
@@ -1365,6 +1459,7 @@ function soloQ(){
     }
     SS.combo++;
     P.stats.ans=(P.stats.ans||0)+1;
+    const md=ensureDailyMissions();md.answers=(md.answers||0)+1;
     if(SS.combo>(P.stats.maxCombo||0))P.stats.maxCombo=SS.combo;
 
     const basePts=N-k;
@@ -1444,11 +1539,16 @@ function soloResult(){
   }
 
   P.coins+=earn;
+  const md=ensureDailyMissions();md.matches=(md.matches||0)+1;
+  if(SS.d.isDaily&&pass)md.daily=1;
   P.stats.g=(P.stats.g||0)+1;
   if(pass)P.stats.w=(P.stats.w||0)+1;
   const xpEarned=Math.max(5,Math.floor(SS.score/3)+(pass?25:0));
   awardXP(xpEarned,SS.d.isDaily?'التحدي اليومي':'اللعب الفردي');
-  addHistory(SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`المرحلة ${SS.L}`,SS.score,pass,earn);
+  const soloMode=SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`المرحلة ${SS.L}`;
+  addHistory(soloMode,SS.score,pass,earn);
+  publishScore(SS.score,soloMode);
+  submitLeaderboard(SS.score,SS.d.isSpeed?'تحدي السرعة':SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`مرحلة ${SS.L}`);
   checkAchievements();
   save();
 
@@ -1456,6 +1556,7 @@ function soloResult(){
   S.phase='lv';
 
   const titleTxt=SS.d.isDaily?(pass?'أتممت التحدي اليومي!':'حاول مجدداً في التحدي اليومي')
+                :SS.d.isSpeed?(pass?'نجحت في تحدي السرعة!':'انتهى تحدي السرعة!')
                 :SS.d.isPractice?'انتهى التدريب الحر!'
                 :(pass?`اجتزت المرحلة ${SS.L} بنجاح!`:`لم تصل للهدف في المرحلة ${SS.L}`);
 
@@ -1477,10 +1578,11 @@ function soloResult(){
   const nl=$('#nl');if(nl)nl.onclick=()=>intro(SS.L+1);
   $('#rt').onclick=()=>{
     if(SS.d.isDaily)startDailyChallenge();
+    else if(SS.d.isSpeed)startSpeedChallenge();
     else if(SS.d.isPractice)practiceSetup();
     else solo(SS.L);
   };
-  $('#bk').onclick=()=>SS.d.isDaily||SS.d.isPractice?home():levels();
+  $('#bk').onclick=()=>SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed?home():levels();
 }
 
 /* ===== المتجر (الشخصيات + الإطارات + الألوان + المساعدات) ===== */
@@ -1639,6 +1741,7 @@ function applyHit(h){
   if(h.p===S.me){
     S.combo++;
     P.stats.ans=(P.stats.ans||0)+1;
+    const md=ensureDailyMissions();md.answers=(md.answers||0)+1;
     if(S.combo>(P.stats.maxCombo||0))P.stats.maxCombo=S.combo;
     save();
     floatPoints(`+${h.pts}`);
@@ -1819,11 +1922,13 @@ function finish(){
     const me=S.players[S.me];
     S.earn=me.s+10+(rank[0]===me&&rank.length>1?25:0);
     P.coins+=S.earn;
+    const md=ensureDailyMissions();md.matches=(md.matches||0)+1;
     P.stats.g=(P.stats.g||0)+1;
     if(rank[0]===me)P.stats.w=(P.stats.w||0)+1;
     const xpEarned=Math.max(10,Math.floor(me.s/3)+(rank[0]===me?30:10));
     awardXP(xpEarned,'مباراة جماعية');
     addHistory('مباراة جماعية',me.s,rank[0]===me,S.earn);
+    publishScore(me.s,'مباراة جماعية');
     checkAchievements();
     save();sfx.win();confetti();vib([40,60,40]);
   }
