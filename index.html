@@ -817,6 +817,48 @@ const pn=p=>{const ok=!!p.ok,f=ef(FR[p.f|0]?p.f|0:0,ok),c=ec(NC[p.c|0]?p.c|0:0,o
 const T=60000,N=8;
 const norm=s=>String(s).replace(/[\u064B-\u065F\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase().replace(/^ال(?=.{3})/,'');
 const MAPS=QS.map(q=>{const m={};q[1].forEach((a,k)=>[].concat(a).forEach(v=>m[norm(v)]=k));return m});
+
+/* مطابقة مرنة: تقبل جزءاً واضحاً من الاسم والأخطاء الإملائية البسيطة */
+function editDistance(a,b){
+  if(Math.abs(a.length-b.length)>2)return 99;
+  let prev=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){
+    const cur=[i];
+    for(let j=1;j<=b.length;j++){
+      cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    }
+    prev=cur;
+  }
+  return prev[b.length];
+}
+function matchAnswer(qid,raw){
+  const answer=norm(raw);
+  if(!answer)return undefined;
+  const map=MAPS[qid];
+  if(Object.prototype.hasOwnProperty.call(map,answer))return map[answer];
+
+  // قبول كلمة/جزء مميز من الإجابة، مثل «برنابيو» بدلاً من «سانتياغو برنابيو»
+  if(answer.length>=3){
+    const partial=Object.keys(map).find(candidate=>
+      candidate.length>=3&&(candidate.includes(answer)||answer.includes(candidate))
+    );
+    if(partial!==undefined)return map[partial];
+  }
+
+  // السماح بخطأ أو خطأين إملائيين بحسب طول الكلمة
+  const limit=answer.length>=7?2:answer.length>=4?1:0;
+  if(limit){
+    let bestKey, bestDistance=limit+1;
+    for(const candidate of Object.keys(map)){
+      if(Math.abs(candidate.length-answer.length)>limit)continue;
+      const distance=editDistance(answer,candidate);
+      if(distance<bestDistance){bestDistance=distance;bestKey=candidate;}
+      if(distance===0)break;
+    }
+    if(bestKey!==undefined&&bestDistance<=limit)return map[bestKey];
+  }
+  return undefined;
+}
 const nm=(q,k)=>[].concat(q[1][k])[0];
 const $=s=>document.querySelector(s);
 const app=$('#app');
@@ -1308,7 +1350,7 @@ function soloQ(){
     const t=$('#gs').value.trim();
     if(!t||SS.done)return;
     $('#gs').value='';
-    const k=MAPS[SS.qid][norm(t.slice(0,40))];
+    const k=matchAnswer(SS.qid,t.slice(0,40));
     if(k===undefined){
       SS.combo=0;
       sfx.bad();vib(60);
@@ -1545,7 +1587,7 @@ async function enter(c,host,auto){
   });
   room.on('guess',m=>{
     if(!S.host||S.phase!=='q'||!m.data||m.data.i!==S.i||S.hits.length>=N)return;
-    const k=MAPS[S.i][norm(String(m.data.t).slice(0,40))];
+    const k=matchAnswer(S.i,String(m.data.t).slice(0,40));
     if(k===undefined)return room.emit('miss',{p:m.peer,r:'x'});
     if(S.hits.some(h=>h.k===k))return room.emit('miss',{p:m.peer,r:'d'});
     const pl=S.players[m.peer]||(S.players[m.peer]={n:'لاعب',s:0});
