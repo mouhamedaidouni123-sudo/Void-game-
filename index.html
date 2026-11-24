@@ -47,7 +47,16 @@ button.o{background:var(--card)}
 .dock{position:sticky;bottom:0;background:var(--bg);padding:8px 0 6px;display:flex;gap:8px;z-index:5}
 .dock input{margin:0;flex:1}
 .dock button{width:auto;margin:0;padding:0 22px}
-.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.onl{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 14px}.play .onl{display:none}</style>
+.chips2{display:flex;flex-wrap:wrap;gap:8px}.chip{cursor:pointer}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}.onl{text-align:center;color:var(--mut);font-size:14px;margin:-4px 0 14px}.play .onl{display:none}.av{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:#1c1a26;font-size:17px;border:2px solid var(--bd);vertical-align:middle;margin-inline-end:7px;flex:none}
+.av.big{width:72px;height:72px;font-size:38px;margin:0}
+.chip .av{width:22px;height:22px;font-size:13px;margin-inline-end:5px}.sg .av{width:20px;height:20px;font-size:12px;margin-inline-end:4px}
+.fr1{border-color:#ffd166;box-shadow:0 0 7px #ffd16699}.fr2{border-color:#9b6bff;box-shadow:0 0 11px #9b6bff}.fr3{border-color:#ff7a3d;box-shadow:0 0 11px #ff4d00}.fr4{border-color:#7dd3fc;box-shadow:0 0 11px #38bdf8}
+.fr5{border:2px solid transparent;background:linear-gradient(#1c1a26,#1c1a26) padding-box,conic-gradient(#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7,#f43f5e) border-box}
+.fr6{border-color:#c4a1ff;box-shadow:0 0 15px #7c3aed,inset 0 0 9px #7c3aed}
+.gr3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.it{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;font-size:13px}
+.it .av{margin:0 auto 6px;width:44px;height:44px;font-size:24px}.it.sel{border-color:var(--pri);box-shadow:0 0 0 1px var(--pri)}.it b{display:block;margin-top:4px;color:var(--pri)}
+</style>
 </head>
 <body>
 <main>
@@ -166,6 +175,14 @@ const BANK={
 const CATS=Object.keys(BANK);
 const QS=[];
 CATS.forEach(c=>BANK[c].trim().split('\n').forEach(l=>{const p=l.split('|');QS.push([p[0].trim(),p[1].split(',').map(x=>x.split('/').map(y=>y.trim())),c])}));
+const AV=[["🙂",0],["🎮",0],["🐱",0],["🦊",0],["🐼",60],["🦁",80],["🐯",80],["🦅",100],["🤖",120],["👽",120],["🐉",150],["💀",150],["🥷",180],["🧙",180],["👑",200],["🦄",250]];
+const FR=[["بدون",0],["ذهبي",100],["بنفسجي",150],["ناري",200],["جليدي",200],["قوس قزح",300],["دوامة VOID",400]];
+const NC=[["أبيض","color:#f1eefa",0],["ذهبي","color:#ffd166",80],["أحمر","color:#ff5d6c",80],["أخضر","color:#4ade80",80],["أزرق","color:#60a5fa",80],["وردي","color:#f472b6",100],["بنفسجي","color:#c4a1ff",100],["متدرج","background:linear-gradient(90deg,#f43f5e,#facc15,#4ade80,#38bdf8,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent",250]];
+let P={n:'',a:0,f:0,c:0,coins:0,own:{a:[0,1,2,3],f:[0],c:[0]}};
+try{const x=JSON.parse(localStorage.getItem('vp')||'null');if(x&&x.own)P=Object.assign(P,x)}catch(e){}
+const save=()=>{try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}};
+const vp=d=>({a:AV[d&&d.a|0]?d.a|0:0,f:FR[d&&d.f|0]?d.f|0:0,c:NC[d&&d.c|0]?d.c|0:0});
+const pn=p=>`<span class="av fr${p.f|0}">${AV[p.a|0]?AV[p.a|0][0]:'🙂'}</span><span style="${(NC[p.c|0]||NC[0])[1]}">${esc(p.n)}</span>`;
 const T=60000,N=8;
 const norm=s=>String(s).replace(/[\u064B-\u065F\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase().replace(/^ال(?=.{3})/,'');
 const MAPS=QS.map(q=>{const m={};q[1].forEach((a,k)=>[].concat(a).forEach(v=>m[norm(v)]=k));return m});
@@ -179,9 +196,16 @@ function toast(t){const e=$('#msg');if(e){e.textContent=t;clearTimeout(S.tt);S.t
 
 function home(err){
   S.phase='home';document.body.classList.remove('play');
-  app.innerHTML=`<div class="card">
-  <input id="nm" placeholder="اسمك" maxlength="16">
-  <button id="rd">🎲 لعب عشوائي مع لاعبين</button>
+  if(!P.n){
+    app.innerHTML=`<div class="card"><p class="s" style="margin:0 0 10px">مرحباً! اكتب اسمك مرة واحدة فقط</p><input id="nm" placeholder="اسمك" maxlength="16"><button id="sv">حفظ ومتابعة</button></div>`;
+    $('#sv').onclick=()=>{const v=$('#nm').value.trim();if(v){P.n=v;save();home()}};
+    return;
+  }
+  app.innerHTML=`<div class="card" style="text-align:center"><span class="av big fr${P.f}">${AV[P.a][0]}</span>
+  <div style="font-size:20px;font-weight:700;margin-top:8px"><span style="${NC[P.c][1]}">${esc(P.n)}</span></div>
+  <div class="pt" style="margin:4px 0 10px">🪙 ${P.coins}</div>
+  <button id="sh" class="o" style="text-align:center">🛍️ المتجر وتخصيص ملفك</button></div>
+  <div class="card"><button id="rd">🎲 لعب عشوائي مع لاعبين</button>
   <button id="cr" class="o" style="text-align:center">إنشاء غرفة لأصدقائك</button>
   <p class="s" style="margin:14px 0 8px">أو انضم بكود صديقك</p>
   <input id="cd" placeholder="الكود" maxlength="8" style="direction:ltr;text-align:center">
@@ -190,26 +214,52 @@ function home(err){
   $('#cr').onclick=()=>enter(code(),true);
   $('#rd').onclick=quick;
   $('#jn').onclick=()=>enter($('#cd').value.trim().toLowerCase(),false);
+  $('#sh').onclick=()=>shop('a');
+}
+function shop(tab){
+  S.phase='shop';
+  const L=tab==='a'?AV:tab==='f'?FR:NC,pi=tab==='c'?2:1;
+  const items=L.map((it,i)=>{
+    const own=P.own[tab].includes(i),cur=P[tab]===i,price=it[pi];
+    const pre=tab==='c'?`<span style="${it[1]};font-weight:700;font-size:16px">${esc(P.n)}</span>`:`<span class="av fr${tab==='f'?i:P.f}">${AV[tab==='a'?i:P.a][0]}</span>`;
+    return `<div class="it ${cur?'sel':''}" data-i="${i}">${pre}<div>${tab==='a'?'':it[0]}</div><b>${cur?'✔ مستخدم':own?'اختيار':price===0?'مجاني':'🪙 '+price}</b></div>`;
+  }).join('');
+  const tabs=[['a','الصور'],['f','الإطارات'],['c','ألوان الأسماء']].map(t=>`<span class="chip ${t[0]===tab?'on':''}" data-t="${t[0]}">${t[1]}</span>`).join('');
+  app.innerHTML=`<div class="card"><div class="top"><b>🪙 ${P.coins}</b><span id="sm"></span></div>
+  <div style="display:flex;gap:8px;margin-top:10px"><input id="nm" value="${esc(P.n)}" maxlength="16" style="margin:0;flex:1"><button id="sn" style="width:auto;margin:0;padding:0 16px">حفظ الاسم</button></div></div>
+  <div class="chips2" style="margin-bottom:12px">${tabs}</div><div class="gr3">${items}</div>
+  <button id="bk" class="o" style="text-align:center;margin-top:14px">رجوع</button>`;
+  const msg=t=>{$('#sm').textContent=t};
+  app.querySelectorAll('[data-t]').forEach(e=>e.onclick=()=>shop(e.dataset.t));
+  app.querySelectorAll('.it').forEach(e=>e.onclick=()=>{
+    const i=+e.dataset.i,price=L[i][pi];
+    if(!P.own[tab].includes(i)){
+      if(P.coins<price)return msg('عملاتك لا تكفي ❌');
+      P.coins-=price;P.own[tab].push(i);
+    }
+    P[tab]=i;save();shop(tab);
+  });
+  $('#sn').onclick=()=>{const v=$('#nm').value.trim();if(v){P.n=v;save();shop(tab)}};
+  $('#bk').onclick=()=>home();
 }
 async function enter(c,host,auto){
-  const n=$('#nm').value.trim();
-  if(!n){$('#er').textContent='اكتب اسمك أولاً';return}
+  const n=P.n;
   if(!/^[a-z0-9]{2,8}$/.test(c)){$('#er').textContent='الكود غير صحيح';return}
   let room=null;
   try{room=await fbJoin(c)}catch(e){console.error(e)}
   if(!room){$('#er').textContent='تعذّر الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase.';return}
   Object.assign(S,{name:n,host,room,code:c,players:{},hits:[],i:-1,auto:!!auto});
   room.on('join',m=>{
-    if(!S.players[m.peer])S.players[m.peer]={n:String(m.data&&m.data.n||'لاعب').slice(0,16),s:0};
+    if(!S.players[m.peer])S.players[m.peer]=Object.assign({n:String(m.data&&m.data.n||'لاعب').slice(0,16),s:0},vp(m.data));
     if(m.isMe&&m.sameTab)S.me=m.peer;
-    if(S.host)room.emit('roster',Object.entries(S.players).map(([p,v])=>({p,n:v.n,s:v.s})));
+    if(S.host)room.emit('roster',Object.entries(S.players).map(([p,v])=>({p,n:v.n,s:v.s,a:v.a,f:v.f,c:v.c})));
     if(S.phase==='lobby')lobby();
   });
   room.on('roster',m=>{
-    (m.data||[]).forEach(x=>{if(!S.players[x.p])S.players[x.p]={n:String(x.n).slice(0,16),s:x.s|0}});
+    (m.data||[]).forEach(x=>{if(!S.players[x.p])S.players[x.p]=Object.assign({n:String(x.n).slice(0,16),s:x.s|0},vp(x))});
     if(S.phase==='lobby')lobby();
   });
-  room.on('q',m=>{const d=m.data||{};if(!(d.i>=0&&d.i<QS.length))return;S.i=d.i|0;S.r=d.r|0;S.nq=d.t|0;if(S.r===1)Object.values(S.players).forEach(p=>p.s=0);S.hits=[];S.dl=Date.now()+T;showQ()});
+  room.on('q',m=>{const d=m.data||{};if(!(d.i>=0&&d.i<QS.length))return;S.i=d.i|0;S.r=d.r|0;S.nq=d.t|0;if(S.r===1){Object.values(S.players).forEach(p=>p.s=0);S.paid=false;S.earn=0}S.hits=[];S.dl=Date.now()+T;showQ()});
   room.on('guess',m=>{
     if(!S.host||S.phase!=='q'||!m.data||m.data.i!==S.i||S.hits.length>=N)return;
     const k=MAPS[S.i][norm(String(m.data.t).slice(0,40))];
@@ -229,7 +279,7 @@ async function enter(c,host,auto){
   });
   room.on('miss',m=>{if(m.data&&m.data.p===S.me)toast(m.data.r==='d'?'سبقك أحدهم لهذه الإجابة 😅':'ليست من الإجابات ❌')});
   room.on('end',m=>{if(S.phase==='q'&&m.data.i===S.i)finish()});
-  room.emit('join',{n});
+  room.emit('join',{n,a:P.a,f:P.f,c:P.c});
   lobby();
   if(S.auto&&S.host)startMM();
 }
@@ -256,8 +306,7 @@ function presence(){
   }catch(e){}
 }
 async function quick(){
-  const n=$('#nm').value.trim();
-  if(!n){$('#er').textContent='اكتب اسمك أولاً';return}
+  const n=P.n;
   $('#er').textContent='جارٍ البحث عن لعبة...';
   try{
     const r=fbDb().ref('mm/open');
@@ -287,7 +336,7 @@ function startMM(){
 }
 function lobby(){
   S.phase='lobby';document.body.classList.remove('play');
-  const list=Object.values(S.players).map(p=>`<div class="row"><span>${esc(p.n)}</span></div>`).join('')||'<p class="s">بانتظار اللاعبين...</p>';
+  const list=Object.values(S.players).map(p=>`<div class="row"><span>${pn(p)}</span></div>`).join('')||'<p class="s">بانتظار اللاعبين...</p>';
   if(S.auto){app.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:38px">🎲</div><b>نبحث عن منافسين عشوائيين...</b><p class="s" id="wt" style="margin:8px 0 0">${S.host?'بانتظار لاعبين آخرين...':'بانتظار بدء اللعبة'}</p></div><div class="card"><b>اللاعبون (${Object.keys(S.players).length})</b>${list}</div>`;return}
   const cfg=S.host?`<div class="card"><b>المواضيع</b><div class="chips2" id="cats" style="margin-top:8px">${CATS.map(c=>`<span class="chip ${S.sel.has(c)?'on':''}" data-c="${c}">${c}</span>`).join('')}</div>
   <p class="s" style="margin:14px 0 6px;text-align:right">عدد الأسئلة</p><div class="chips2" id="nn">${[5,8,12].map(n=>`<span class="chip ${S.tot===n?'on':''}" data-n="${n}">${n}</span>`).join('')}</div>
@@ -310,7 +359,7 @@ function slots(show){
   let h='';
   for(let j=0;j<N;j++){
     const x=S.hits.find(t=>t.k===j),pt=N-j;
-    h+=x?`<div class="slot f"><span><b>${j+1}.</b> ${esc(nm(q,j))} <small>— ${esc(x.n)}</small></span><span class="pt">+${pt}</span></div>`
+    h+=x?`<div class="slot f"><span><b>${j+1}.</b> ${esc(nm(q,j))} <small>— ${S.players[x.p]?pn(S.players[x.p]):esc(x.n)}</small></span><span class="pt">+${pt}</span></div>`
         :`<div class="slot"><span><b>${j+1}.</b> ${show?esc(nm(q,j)):'؟؟؟'}</span><span class="pt">${pt}</span></div>`;
   }
   return h;
@@ -336,7 +385,7 @@ function showQ(){
     if(left<=0){clearInterval(S.tm);if(S.host&&S.phase==='q')S.room.emit('end',{i:S.i})}
   },250);
 }
-function draw(){const a=$('#sl'),b=$('#bd');if(a)a.innerHTML=slots();if(b)b.innerHTML=Object.values(S.players).sort((x,y)=>y.s-x.s).map(p=>`<span class="chip">${esc(p.n)} · <b style="color:var(--pri)">${p.s}</b></span>`).join('')}
+function draw(){const a=$('#sl'),b=$('#bd');if(a)a.innerHTML=slots();if(b)b.innerHTML=Object.values(S.players).sort((x,y)=>y.s-x.s).map(p=>`<span class="chip">${pn(p)} · <b style="color:var(--pri)">${p.s}</b></span>`).join('')}
 function finish(){
   clearInterval(S.tm);
   S.phase='r';document.body.classList.remove('play');
@@ -345,9 +394,10 @@ function finish(){
   const found=new Set(S.hits.map(h=>h.k));
   const miss=q[1].map((_,k)=>k).filter(k=>!found.has(k)).slice(0,8).map(k=>esc(nm(q,k))).join('، ');
   const rank=Object.values(S.players).sort((a,b)=>b.s-a.s);
-  const rows=rank.map((p,k)=>`<div class="row"><span>${last&&k===0?'🏆 ':(k+1)+'. '}${esc(p.n)}</span><b>${p.s}</b></div>`).join('');
+  if(last&&!S.paid&&S.players[S.me]){S.paid=true;const me=S.players[S.me];S.earn=me.s+10+(rank[0]===me&&rank.length>1?25:0);P.coins+=S.earn;save()}
+  const rows=rank.map((p,k)=>`<div class="row"><span>${last&&k===0?'🏆 ':(k+1)+'. '}${pn(p)}</span><b>${p.s}</b></div>`).join('');
   app.innerHTML=`<div class="card"><div class="q">${esc(q[0])}</div><div class="sg">${slots(true)}</div></div>
-  <div class="card"><b>${last?'النتيجة النهائية':'الترتيب'}</b>${rows}</div>
+  <div class="card"><b>${last?'النتيجة النهائية':'الترتيب'}</b>${last&&S.earn?` <span class="pt" style="float:left">+${S.earn} 🪙</span>`:''}${rows}</div>
   ${S.host?`<button id="nx">${last?'لعبة جديدة':'السؤال التالي'}</button>`:`<p class="s">${last?'انتهت اللعبة 🎉':'بانتظار المضيف...'}</p>`}`;
   const nx=$('#nx');
   if(S.auto&&last){if(nx)nx.remove();const b=document.createElement('button');b.textContent='العودة للرئيسية';b.onclick=()=>location.reload();app.appendChild(b)}
