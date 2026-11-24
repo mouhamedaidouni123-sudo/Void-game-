@@ -491,6 +491,7 @@ input:focus{border-color:#8b7cff;box-shadow:0 0 0 3px #8b7cff20}
     <span>تحدي الأصدقاء ... خمّن الإجابات قبل الجميع</span>
   </div>
   <div id="onl" class="onl"></div>
+  <button id="global-back" class="o" type="button" aria-label="رجوع" style="display:none;position:fixed;z-index:55;top:calc(env(safe-area-inset-top, 8px) + 8px);right:14px;width:auto;padding:9px 15px;margin:0;border-radius:999px;box-shadow:0 5px 18px #0008">← رجوع</button>
   <div id="app"></div>
   <p class="cr">🎮 لعبة مجتمع VOID · من تصميم <b>ice</b></p>
 </main>
@@ -732,6 +733,8 @@ try{
 if(P.v!==3){P.a=P.f=P.c=0;P.own={a:[0,1,2,3],f:[0],c:[0]};P.v=3}
 P.pw=Object.assign({hint:2,time:2,x2:2},P.pw||{});
 P.lv=P.lv||{};
+P.unlocked=P.unlocked||{};
+Object.keys(P.lv).forEach(k=>{const n=Number(k);if(P.lv[k]>0)P.unlocked[n+1]=true});
 P.best=P.best||{};
 P.stats=Object.assign({g:0,w:0,ans:0,maxCombo:0},P.stats||{});
 P.ach=P.ach||{};
@@ -1222,7 +1225,7 @@ function levels(){
       const def=lvDef(L);
       const st=lv[L]||0;
       wStars+=st;
-      const open=L===1||!!lv[L-1];
+      const open=L===1||!!lv[L-1]||!!(P.unlocked&&P.unlocked[L]);
       const isCur=open&&!st&&L===nextOpen;
       cells+=`<button class="lvb ${open?'':'lock'} ${st?'dn':''} ${isCur?'cur':''}" data-l="${L}" ${open?'':'disabled'}>
         <b>${open?'مرحلة '+L:'🔒'}</b>
@@ -1534,7 +1537,11 @@ function soloResult(){
     if(SS.score>(P.best[SS.L]||0))P.best[SS.L]=SS.score;
     if(pass){
       if(!old)earn+=18+SS.L*2;
-      if(st>old){earn+=(st-old)*12;P.lv[SS.L]=st}
+      if(st>old){earn+=(st-old)*12}
+      // اجتياز المرحلة يفتح التالية حتى عند إعادة اللعب أو وجود بيانات قديمة.
+      P.lv[SS.L]=Math.max(Number(old)||0,st);
+      P.unlocked=P.unlocked||{};
+      if(SS.L<LV)P.unlocked[SS.L+1]=true;
     }
   }
 
@@ -1944,6 +1951,31 @@ function finish(){
     nx.onclick=()=>{if(last)lobby();else S.room.emit('q',{i:S.plan[S.r],r:S.r+1,t:S.nq})};
   }
 }
+
+// زر رجوع ثابت يظهر تلقائياً داخل جميع الأقسام ما عدا الصفحة الرئيسية.
+(function(){
+  const back=document.getElementById('global-back');
+  const sync=()=>{back.style.display=S.phase==='home'?'none':'block'};
+  const observer=new MutationObserver(sync);
+  observer.observe(document.getElementById('app'),{childList:true,subtree:true});
+  back.addEventListener('click',()=>{
+    if(S.phase==='solo'&&SS){
+      clearInterval(SS.tm);
+      document.body.classList.remove('play');
+      if(SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed)home();
+      else intro(SS.L);
+    }else if(['lobby','q','r'].includes(S.phase)){
+      if(typeof leaveRoom==='function')leaveRoom();
+      else home();
+    }else if(S.phase==='shop'||S.phase==='lv'){
+      home();
+    }else{
+      home();
+    }
+    sync();
+  });
+  sync();
+})();
 
 window.addEventListener('offline',()=>{if(S.phase==='home')home()});
 window.addEventListener('online',()=>{if(S.phase==='home'){if(typeof firebase==='undefined')location.reload();else home()}});
