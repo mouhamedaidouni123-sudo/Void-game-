@@ -418,6 +418,46 @@ button.bad{background:linear-gradient(135deg,#dc2626,var(--bad));color:#fff;bord
 button:focus-visible,.chip:focus-visible,input:focus-visible{outline:2px solid #c4a1ff;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
+
+/* ===== VOID premium interface refresh ===== */
+:root{--bg:#080b12;--card:#101722;--card2:#151f2d;--tx:#edf3fb;--mut:#8b9aaf;--pri:#8b7cff;--pri2:#635bdb;--acc:#55d6e8;--ok:#43c99a;--bad:#f06f83;--gold:#d8b66a;--bd:#263447;color-scheme:dark}
+body{background:radial-gradient(ellipse at 50% -18%,rgba(68,83,151,.25),transparent 48%),radial-gradient(ellipse at 100% 60%,rgba(26,119,145,.08),transparent 38%),var(--bg);letter-spacing:.01em}
+main{max-width:520px;padding:18px 15px 32px}
+.hero{height:174px;border-radius:18px;margin-bottom:18px;background:linear-gradient(135deg,rgba(7,12,22,.35),rgba(7,12,22,.82)),radial-gradient(circle at 50% 45%,#29385d 0,#111a2c 35%,#090e18 72%);border:1px solid #34445b;box-shadow:0 18px 48px #0008,inset 0 1px #ffffff12}
+.hero:after{content:"";position:absolute;inset:12px;border:1px solid #a8b8d31c;border-radius:12px;pointer-events:none}
+.hero b{font:800 49px system-ui,sans-serif;letter-spacing:.28em;margin-right:-.28em;color:#f2f6ff;text-shadow:0 0 28px #8c9dff65}
+.hero span{font-size:11px;letter-spacing:.13em;color:#aebbd0}
+.card,.world-card,.progress-card{background:linear-gradient(145deg,rgba(19,28,42,.97),rgba(12,18,29,.98));border:1px solid #2a394e;border-radius:15px;box-shadow:0 12px 28px #0005,inset 0 1px #ffffff08}
+.card{padding:16px;margin-bottom:12px}
+button{background:linear-gradient(135deg,#7168e8,#4e58a8);border:1px solid #9690ff55;border-radius:11px;box-shadow:0 6px 18px #5d5bd12b;font-size:15px}
+button.o{background:#151f2d;border:1px solid #34445a;color:#dce6f4}
+button.ok{background:linear-gradient(135deg,#178d79,#237c70)}
+button.bad{background:linear-gradient(135deg,#a83f5a,#80364d)}
+input{background:#0a111c;border:1px solid #2b3a4e;border-radius:10px}
+input:focus{border-color:#8b7cff;box-shadow:0 0 0 3px #8b7cff20}
+.chip{background:#111b29;border-color:#304157;color:#9eacc0;border-radius:9px}
+.chip.on{background:#27264c;border-color:#8278ed;color:#e9e7ff}
+.tiles{gap:9px}
+.tile,.t1,.t2,.t3,.t4{min-height:78px;padding:14px 15px;background:linear-gradient(115deg,#172334,#111a27);border:1px solid #304158;border-radius:13px;box-shadow:inset 3px 0 #7e79e8,0 7px 20px #0003}
+.tile:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 50%,#ffffff05);pointer-events:none}
+.tile b{font-size:15px;letter-spacing:.01em}.tile small{color:#9eacc0;font-size:11.5px}
+.tile-ico{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid #6476a044;border-radius:10px;background:#222d43;color:#c6caff;font:700 12px ui-monospace,monospace;filter:none;letter-spacing:.06em}
+.progress-card{padding:14px;background:linear-gradient(120deg,#151c32,#111a28);border-color:#394568}
+.xp-track{background:#080e18}.xp-track i{background:linear-gradient(90deg,#7770ed,#58c5d7)}
+.profile-stat,.it,.slot{background:#0d1521;border-color:#2b3b50}
+.it{border-radius:12px;padding:12px 5px}.it.sel{border-color:#8b7cff;background:#191d36;box-shadow:0 0 0 1px #8b7cff44}.it b{color:#b9b5ff}
+.av{box-shadow:0 0 0 1px #ffffff14,0 5px 12px #0008}.av::before{animation:none}
+.av i{box-shadow:inset 0 0 18px #ffffff12;background:#0b1422!important}
+.av i svg{padding:8px;color:#dce8ff;filter:drop-shadow(0 0 5px #8b9cff66)}.av.big i svg{padding:13px}
+.fr1,.fr2,.fr3,.fr4,.fr5,.fr6,.fr7,.fr8,.fr9,.fr10,.fr11{--gb:3px;animation:none}
+.lvb{background:#121c2a;border-color:#2b3b50;border-radius:11px}.lvb.cur{border-color:#8b7cff;box-shadow:0 0 14px #8b7cff22}.lvb.dn{background:#182334;border-color:#8b7544}
+.world-badge{background:#202b3b;color:#d8b66a}.code{color:#a9a4ff;text-shadow:none}
+.modal{background:#03060bdc;backdrop-filter:blur(12px)}.mc{background:#111a28;border:1px solid #39485e;border-radius:17px}
+.ach-item{background:#0b1420;border-color:#29394e}.note{background:#2a2417;border-color:#6c5932;color:#e6cb88}
+.bar{background:#202c3c}.bar i{background:linear-gradient(90deg,#6f69dc,#58c5d7)}
+.pw-btn{background:#131e2c;border-color:#304158}.pw-btn.active{background:#302b1a;border-color:#b99a58;color:#ead7a5}
+.cr{color:#74849b}
+
 </style>
 </head>
 <body>
@@ -621,27 +661,28 @@ const smile=`<path d="M43 55Q50 61 57 55" stroke="#8b3a3a" stroke-width="2" fill
 const man=(sk,sh,bk,fr)=>`<svg viewBox="0 0 100 100">${body(sh)}${bk||''}${neck(sk)}${head(sk)}${eyes}${smile}${fr||''}</svg>`;
 const raw=x=>`<svg viewBox="0 0 100 100">${x}</svg>`;
 const g=(a,b)=>`linear-gradient(135deg,${a},${b})`;
+const sigil=(shape)=>`<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">${shape}</g></svg>`;
 const AV=[
-[man("#f2c9a0","#3b82f6","",`<path d="M28 40Q26 16 50 16Q74 16 72 40Q64 30 50 30Q36 30 28 40Z" fill="#2b1d12"/>`),0,g("#60a5fa","#1d4ed8"),"فتى"],
-[man("#f5d0b0","#ec4899",`<path d="M26 52Q20 14 50 14Q80 14 74 52L76 74Q62 62 50 62Q38 62 24 74Z" fill="#6b2d1a"/>`,`<path d="M28 40Q34 20 50 24Q66 20 72 40Q60 32 50 34Q40 32 28 40Z" fill="#6b2d1a"/><circle cx="64" cy="24" r="4" fill="#f9a8d4"/>`),0,g("#f9a8d4","#9333ea"),"فتاة"],
-[man("#f59e0b","#fb923c",`<path d="M29 32L30 8 47 22Z M71 32L70 8 53 22Z" fill="#f59e0b"/><path d="M33 26L34 15 42 23Z M67 26L66 15 58 23Z" fill="#fda4af"/>`,`<ellipse cx="50" cy="52" rx="8" ry="6" fill="#fde68a"/><path d="M47 50h6l-3 4z" fill="#f472b6"/><path d="M20 50h14M20 55l14-2M80 50H66M80 55l-14-2" stroke="#fff" stroke-width="1" opacity=".8"/>`),0,g("#fdba74","#c2410c"),"قطة"],
-[man("#f97316","#7c2d12",`<path d="M29 34L28 8 47 24Z M71 34L72 8 53 24Z" fill="#f97316"/><path d="M32 28L32 14 41 24Z M68 28L68 14 59 24Z" fill="#431407"/>`,`<path d="M33 52Q50 74 67 52Q50 58 33 52Z" fill="#fff7ed"/><ellipse cx="50" cy="52" rx="4" ry="3" fill="#111"/>`),0,g("#fb923c","#b91c1c"),"ثعلب"],
-[raw(`${body("#111827")}${neck("#111827")}<ellipse cx="50" cy="44" rx="21" ry="24" fill="#1f2937"/><rect x="31" y="37" width="38" height="14" rx="7" fill="#f2c9a0"/><circle cx="42" cy="44" r="3" fill="#111"/><circle cx="58" cy="44" r="3" fill="#111"/><rect x="29" y="28" width="42" height="6" fill="#ef4444"/><path d="M70 31L86 40 84 28Z" fill="#ef4444"/>`),60,g("#64748b","#0f172a"),"نينجا"],
-[raw(`${body("#475569")}<rect x="43" y="58" width="14" height="18" fill="#f1f5f9"/><circle cx="32" cy="24" r="9" fill="#111"/><circle cx="68" cy="24" r="9" fill="#111"/><ellipse cx="50" cy="44" rx="22" ry="24" fill="#f8fafc"/><ellipse cx="40" cy="45" rx="6" ry="8" fill="#111" transform="rotate(20 40 45)"/><ellipse cx="60" cy="45" rx="6" ry="8" fill="#111" transform="rotate(-20 60 45)"/><circle cx="40" cy="44" r="2.5" fill="#fff"/><circle cx="60" cy="44" r="2.5" fill="#fff"/><ellipse cx="50" cy="55" rx="4" ry="3" fill="#111"/>${smile}`),60,g("#86efac","#15803d"),"باندا"],
-[raw(`${body("#64748b")}<rect x="44" y="60" width="12" height="14" fill="#94a3b8"/><path d="M50 22V10" stroke="#94a3b8" stroke-width="3"/><circle cx="50" cy="9" r="4" fill="#f43f5e"/><rect x="29" y="22" width="42" height="40" rx="9" fill="#cbd5e1"/><rect x="34" y="34" width="32" height="12" rx="6" fill="#0f172a"/><circle cx="43" cy="40" r="4" fill="#22d3ee"/><circle cx="57" cy="40" r="4" fill="#22d3ee"/><rect x="38" y="52" width="24" height="5" rx="2" fill="#475569"/>`),80,g("#67e8f9","#0e7490"),"روبوت"],
-[raw(`${body("#94a3b8")}<rect x="43" y="60" width="14" height="14" fill="#4ade80"/><ellipse cx="50" cy="42" rx="24" ry="28" fill="#86efac"/><ellipse cx="39" cy="46" rx="7" ry="10" transform="rotate(-20 39 46)" fill="#0b1020"/><ellipse cx="61" cy="46" rx="7" ry="10" transform="rotate(20 61 46)" fill="#0b1020"/><circle cx="37" cy="42" r="2" fill="#fff"/><circle cx="59" cy="42" r="2" fill="#fff"/><path d="M45 61Q50 64 55 61" stroke="#166534" stroke-width="2" fill="none" stroke-linecap="round"/>`),80,g("#bef264","#3f6212"),"فضائي"],
-[man("#f2c9a0","#7f1d1d","",`<path d="M28 38Q50 12 72 38Q50 30 28 38Z" fill="#dc2626"/><circle cx="71" cy="35" r="4" fill="#dc2626"/><ellipse cx="59" cy="45" rx="5.5" ry="4.5" fill="#111"/><path d="M29 36L57 44" stroke="#111" stroke-width="1.5"/>`),100,g("#fca5a5","#7f1d1d"),"قرصان"],
-[man("#f2c9a0","#78350f","",`<path d="M28 38Q28 14 50 14Q72 14 72 38Q50 28 28 38Z" fill="#94a3b8"/><path d="M28 32Q12 30 10 12Q24 16 30 26Z M72 32Q88 30 90 12Q76 16 70 26Z" fill="#fde68a"/><path d="M29 52Q50 86 71 52Q60 62 50 62Q40 62 29 52Z" fill="#c2410c"/>`),100,g("#93c5fd","#1e3a8a"),"فايكنج"],
-[raw(`${body("#94a3b8")}<rect x="43" y="58" width="14" height="18" fill="#64748b"/><path d="M27 52Q26 14 50 14Q74 14 73 52L73 64Q50 70 27 64Z" fill="#cbd5e1"/><rect x="31" y="38" width="38" height="7" rx="3" fill="#0f172a"/><path d="M50 14Q56 0 72 6Q60 8 56 16Z" fill="#ef4444"/><path d="M50 16V66" stroke="#94a3b8" stroke-width="2"/>`),120,g("#cbd5e1","#334155"),"فارس"],
-[man("#f2c9a0","#4c1d95","",`<path d="M24 36L50 0 76 36Z" fill="#6d28d9"/><ellipse cx="50" cy="36" rx="30" ry="6" fill="#5b21b6"/><path d="M48 18l1.5 4 4 .3-3 2.7 1 4-3.5-2.2-3.5 2.2 1-4-3-2.7 4-.3z" fill="#fde047"/><path d="M30 52Q50 92 70 52Q60 62 50 62Q40 62 30 52Z" fill="#f1f5f9"/>`),120,g("#c4b5fd","#4c1d95"),"ساحر"],
-[raw(`${body("#e2e8f0")}<circle cx="50" cy="46" r="31" fill="#f1f5f9"/><ellipse cx="50" cy="47" rx="23" ry="21" fill="#1e3a8a"/><ellipse cx="42" cy="39" rx="8" ry="5" fill="#fff" opacity=".35" transform="rotate(-25 42 39)"/><circle cx="43" cy="50" r="2.5" fill="#fff"/><circle cx="57" cy="50" r="2.5" fill="#fff"/><path d="M45 57Q50 61 55 57" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="40" y="74" width="20" height="8" rx="3" fill="#94a3b8"/>`),150,g("#1e1b4b","#6d28d9"),"رائد فضاء"],
-[man("#e9e3ee","#111827",`<path d="M10 100L26 62 50 84 74 62 90 100Z" fill="#7f1d1d"/>`,`<path d="M28 40Q28 16 50 16Q72 16 72 40Q60 28 50 34Q40 28 28 40Z" fill="#111827"/><path d="M44 57L46.5 64 49 57Z M51 57L53.5 64 56 57Z" fill="#fff"/>`),150,g("#7f1d1d","#111827"),"مصاص دماء"],
-[man("#9ca3af","#374151",`<path d="M29 34L26 6 47 24Z M71 34L74 6 53 24Z" fill="#6b7280"/>`,`<ellipse cx="50" cy="54" rx="11" ry="8" fill="#e5e7eb"/><ellipse cx="50" cy="50" rx="4" ry="3" fill="#111"/><circle cx="41" cy="45" r="3.4" fill="#facc15"/><circle cx="59" cy="45" r="3.4" fill="#facc15"/>`),180,g("#94a3b8","#1e293b"),"ذئب"],
-[man("#22c55e","#14532d",`<path d="M33 30L22 4 44 22Z M67 30L78 4 56 22Z" fill="#fde68a"/>`,`<ellipse cx="50" cy="55" rx="10" ry="7" fill="#86efac"/><circle cx="46" cy="55" r="1.5" fill="#14532d"/><circle cx="54" cy="55" r="1.5" fill="#14532d"/><circle cx="41" cy="45" r="3.6" fill="#facc15"/><circle cx="59" cy="45" r="3.6" fill="#facc15"/><rect x="40" y="43" width="2" height="5" fill="#111"/><rect x="58" y="43" width="2" height="5" fill="#111"/>`),180,g("#4ade80","#7f1d1d"),"تنين"],
-[man("#c08457","#0f172a","",`<path d="M44 22L50 2 56 22Z" fill="#f0abfc"/><rect x="29" y="38" width="42" height="10" rx="5" fill="#0f172a"/><rect x="31" y="40" width="38" height="6" rx="3" fill="#f472b6"/>`),200,g("#22d3ee","#7c3aed"),"سايبر"],
-[man("#f2c9a0","#991b1b","",`<path d="M28 40Q28 16 50 16Q72 16 72 40Q60 26 50 30Q40 26 28 40Z" fill="#111827"/><circle cx="50" cy="12" r="6" fill="#111827"/><rect x="29" y="30" width="42" height="5" fill="#f8fafc"/><circle cx="50" cy="32.5" r="2.5" fill="#dc2626"/>`),200,g("#fca5a5","#991b1b"),"ساموراي"],
-[man("#f5d0b0","#9333ea",`<path d="M26 52Q20 14 50 14Q80 14 74 52L76 76Q62 62 50 62Q38 62 24 76Z" fill="#facc15"/>`,`<path d="M28 40Q34 22 50 26Q66 22 72 40Q60 32 50 34Q40 32 28 40Z" fill="#facc15"/><path d="M34 26L37 10 44 20 50 6 56 20 63 10 66 26Z" fill="#f59e0b" stroke="#fde68a"/><circle cx="50" cy="12" r="2" fill="#ef4444"/>`),350,g("#f0abfc","#7e22ce"),"ملكة"],
-[man("#f2c9a0","#b91c1c","",`<path d="M32 28L35 10 43 22 50 6 57 22 65 10 68 28Z" fill="#fbbf24" stroke="#fde68a"/><path d="M29 50Q50 84 71 50Q60 60 50 60Q40 60 29 50Z" fill="#d1d5db"/><circle cx="50" cy="10" r="2" fill="#ef4444"/>`),450,g("#fde047","#b45309"),"ملك"]
+  [sigil('<circle cx="50" cy="50" r="25"/><ellipse cx="50" cy="50" rx="40" ry="14" transform="rotate(-35 50 50)"/><circle cx="50" cy="50" r="5"/>'),0,g('#7dd3fc','#2563eb'),'نبض'],
+  [sigil('<path d="M50 10 86 50 50 90 14 50Z"/><path d="M50 25 72 50 50 75 28 50Z"/>'),0,g('#c4b5fd','#6d28d9'),'مدار'],
+  [sigil('<path d="M18 66 50 20 82 66Z"/><path d="M30 66 50 38 70 66Z"/>'),0,g('#67e8f9','#0e7490'),'طيف'],
+  [sigil('<path d="M50 10 61 39 90 50 61 61 50 90 39 61 10 50 39 39Z"/>'),0,g('#a5b4fc','#4338ca'),'شعاع'],
+  [sigil('<path d="M50 12 78 28 78 72 50 88 22 72 22 28Z"/><path d="M36 50h28"/>'),60,g('#94a3b8','#334155'),'ظل'],
+  [sigil('<path d="M66 17a35 35 0 1 0 17 59A31 31 0 0 1 66 17Z"/>'),60,g('#86efac','#166534'),'قمر'],
+  [sigil('<circle cx="50" cy="50" r="31"/><path d="M50 19v62M19 50h62M28 28l44 44M72 28 28 72"/>'),80,g('#67e8f9','#155e75'),'نبراس'],
+  [sigil('<path d="M18 50 50 18 82 50 50 82Z"/><circle cx="50" cy="50" r="13"/>'),80,g('#a78bfa','#4c1d95'),'بوابة'],
+  [sigil('<path d="M20 30h60v40H20z"/><path d="M31 30V18h38v12M31 70v12h38V70"/>'),100,g('#fca5a5','#7f1d1d'),'قرصان'],
+  [sigil('<path d="M50 12 85 32 85 68 50 88 15 68 15 32Z"/><path d="M32 50h36M50 32v36"/>'),100,g('#93c5fd','#1e3a8a'),'فايكنج'],
+  [sigil('<path d="M50 12 82 30 82 70 50 88 18 70 18 30Z"/><path d="m34 50 11 11 22-24"/>'),120,g('#cbd5e1','#334155'),'فارس'],
+  [sigil('<path d="M50 12 58 40 88 50 58 60 50 88 42 60 12 50 42 40Z"/>'),120,g('#c4b5fd','#4c1d95'),'ساحر'],
+  [sigil('<circle cx="50" cy="50" r="34"/><circle cx="50" cy="50" r="20"/><path d="M50 4v18M50 78v18M4 50h18M78 50h18"/>'),150,g('#7dd3fc','#1e1b4b'),'رائد فضاء'],
+  [sigil('<path d="M25 25h50v50H25z"/><path d="M38 38h24v24H38z"/><path d="M50 8v17M50 75v17"/>'),150,g('#e9d5ff','#581c87'),'مصاص دماء'],
+  [sigil('<path d="M50 12 82 50 50 88 18 50Z"/><path d="M50 12v76M18 50h64"/>'),180,g('#94a3b8','#1e293b'),'ذئب'],
+  [sigil('<path d="M20 65 35 30 50 65 65 30 80 65"/><path d="M27 76h46"/>'),180,g('#4ade80','#14532d'),'تنين'],
+  [sigil('<path d="M18 18h64v64H18z"/><path d="M34 34h32v32H34z"/><circle cx="50" cy="50" r="5"/>'),200,g('#22d3ee','#312e81'),'سايبر'],
+  [sigil('<path d="M50 12 63 36 88 50 63 64 50 88 37 64 12 50 37 36Z"/><circle cx="50" cy="50" r="9"/>'),200,g('#fca5a5','#7f1d1d'),'ساموراي'],
+  [sigil('<path d="M50 12 60 38 88 40 67 58 73 86 50 72 27 86 33 58 12 40 40 38Z"/>'),350,g('#f0abfc','#7e22ce'),'ملكة'],
+  [sigil('<path d="M22 30h56v40H22z"/><path d="M35 30V18h30v12M35 70v12h30V70"/><path d="M38 50h24"/>'),450,g('#fde047','#92400e'),'ملك']
 ];
 const FR=[["بدون",0],["ذهبي ثلاثي الأبعاد",100],["فضي لامع",120],["ناري",200],["جليدي",200],["نيون بنفسجي",250],["قوس قزح",300],["دوامة VOID",400],["زمرد",350],["ملكي",450],["كهرباء",500],["لهب الشمس البنفسجي",0]];
 const NC=[["أبيض",0],["ذهبي",80],["أحمر",80],["أخضر",80],["أزرق",80],["وردي",100],["غروب",150],["محيط",150],["نيون أخضر",200],["قوس قزح متحرك",300],["ناري متحرك",300],["جليد لامع",350],["مجرة VOID",400],["ذهب لامع",450],["المطوّر",0]];
@@ -742,7 +783,7 @@ function showProfile(){
   const xp=xpIntoLevel(),lvl=playerLevel();
   const m=document.createElement('div');m.className='modal';
   m.innerHTML=`<div class="mc">
-    <h3>👤 ملف اللاعب</h3>
+    <h3>ملف اللاعب</h3>
     <div class="progress-card">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
         <b>${esc(P.n||'لاعب')}</b><span class="chip">المستوى ${lvl}</span>
@@ -886,10 +927,10 @@ function showStatsModal(){
 function help(){
   const m=document.createElement('div');m.className='modal';
   m.innerHTML=`<div class="mc">
-    <h3>📖 طريقة اللعب الاحترافية</h3>
+    <h3>دليل VOID</h3>
     <p><b>1. فكرة اللعبة:</b> يظهر سؤال عام مثل «اذكر فاكهة» وله 8 إجابات مخفية مرتبة من الأشهر (8 نقاط) إلى الأقل شهرة (نقطة واحدة).</p>
     <p><b>2. نظام السلسلة (Combo 🔥):</b> الإجابات الصحيحة المتتالية دون أخطاء تضاعف نقاطك حتى <b>x2.0</b>!</p>
-    <p><b>3. المساعدات الذكية:</b> استخدم <b>💡 تلميح</b> لكشف الحرف الأول، أو <b>⏱️ +15 ثانية</b>، أو <b>⚡ مضاعفة النقاط</b> للإجابة القادمة.</p>
+    <p><b>3. المساعدات الذكية:</b> استخدم <b>تلميح</b> لكشف الحرف الأول، أو <b>+15 ثانية</b>، أو <b>مضاعفة النقاط</b> للإجابة القادمة.</p>
     <p><b>4. مراحل الأوفلاين (36 مرحلة):</b> 6 عوالم متدرجة، لكل مرحلة عدد محدد من الأسئلة ونقاط هدف يجب تحقيقها لفتح المرحلة التالية.</p>
     <button>فهمت، لنبدأ!</button>
   </div>`;
@@ -919,60 +960,60 @@ function home(err){
   app.innerHTML=`
   <div class="card" style="text-align:center;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <span class="chip" id="st-btn" style="font-size:12px;padding:4px 10px">📊 الإنجازات</span>
-      <span class="pt" style="font-size:16px">🪙 ${P.coins}</span>
+      <span class="chip" id="st-btn" style="font-size:12px;padding:4px 10px">الإنجازات</span>
+      <span class="pt" style="font-size:16px">${P.coins} عملة</span>
     </div>
     ${avh(P.a,ef(P.f,!!O),1)}
     <div style="font-size:20px;font-weight:800;margin-top:8px"><span class="nc${ec(P.c,!!O)}">${esc(P.n)}</span>${O?'<span class="vb">✓</span>':''}</div>
-    <div class="s" style="margin:4px 0 12px;font-size:13px">🗺️ ${done}/${LV} مرحلة · ⭐ ${totalStars} نجمة</div>
-    <button id="sh" class="o" style="text-align:center;margin-top:0">🛍️ المتجر وتخصيص الشخصية والمساعدات</button>
+    <div class="s" style="margin:4px 0 12px;font-size:13px">${done}/${LV} مرحلة · ${totalStars} نجمة</div>
+    <button id="sh" class="o" style="text-align:center;margin-top:0">المتجر والتخصيص</button>
   </div>
 
-  ${off?'<div class="note">📡 أنت في وضع عدم الاتصال — نمط المراحل والتدريب والتحدي اليومي متاحة بالكامل!</div>':''}
+  ${off?'<div class="note">وضع عدم الاتصال — المراحل والتدريب والتحدي اليومي متاحة</div>':''}
 
   <div class="tiles">
     <button class="tile t1" id="of">
       <div class="tile-info">
-        <b>🗺️ مراحل التحدي (أوفلاين)</b>
+        <b>مراحل التحدي</b>
         <small>6 عوالم · ${LV} مرحلة بعدد أسئلة محدد لكل مرحلة</small>
       </div>
-      <span class="tile-ico">🎯</span>
+      <span class="tile-ico">01</span>
     </button>
 
     <button class="tile t4" id="dl-btn">
       <div class="tile-info">
-        <b>📅 التحدي اليومي ${dailyDone?'(مكتمل ✅)':''}</b>
-        <small>${dailyDone?'لقد ربحت مكافأة اليوم! عد غداً':'4 أسئلة خاصة · مكافأة +60 🪙 إضافية'}</small>
+        <b>التحدي اليومي ${dailyDone?'(مكتمل ✅)':''}</b>
+        <small>${dailyDone?'لقد ربحت مكافأة اليوم! عد غداً':'4 أسئلة خاصة · مكافأة +60 عملة'}</small>
       </div>
-      <span class="tile-ico">🔥</span>
+      <span class="tile-ico">02</span>
     </button>
 
     <button class="tile t2" id="rd" ${off?'disabled':''}>
       <div class="tile-info">
-        <b>🎲 لعب عشوائي أونلاين</b>
+        <b>مباراة عشوائية</b>
         <small>تحدَّ لاعبين حقيقيين في الوقت الفعلي</small>
       </div>
-      <span class="tile-ico">⚡</span>
+      <span class="tile-ico">03</span>
     </button>
 
     <button class="tile t3" id="cr" ${off?'disabled':''}>
       <div class="tile-info">
-        <b>👥 إنشاء غرفة أصدقاء</b>
+        <b>غرفة خاصة</b>
         <small>أنشئ غرفة خاصة وشارك الكود مع أصدقائك</small>
       </div>
-      <span class="tile-ico">👑</span>
+      <span class="tile-ico">04</span>
     </button>
   </div>
   <div class="progress-card">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-      <b>⭐ المستوى ${playerLevel()}</b><span class="pt">${P.xp||0} XP</span>
+      <b>المستوى ${playerLevel()}</b><span class="pt">${P.xp||0} XP</span>
     </div>
     <div class="xp-track"><i style="width:${xpIntoLevel()/250*100}%"></i></div>
-    <div class="top" style="margin-top:7px"><span>🔥 سلسلة يومية: ${P.streak||0} يوم</span><span>${xpIntoLevel()}/250 XP للمستوى التالي</span></div>
+    <div class="top" style="margin-top:7px"><span>سلسلة يومية: ${P.streak||0} يوم</span><span>${xpIntoLevel()}/250 XP للمستوى التالي</span></div>
   </div>
   <div class="chips2" style="justify-content:center;margin:0 0 12px">
-    <span class="chip" id="profile-btn">👤 ملف اللاعب</span>
-    <span class="chip" id="records-btn">🏆 أفضل النتائج</span>
+    <span class="chip" id="profile-btn">ملف اللاعب</span>
+    <span class="chip" id="records-btn">أفضل النتائج</span>
   </div>
 
   <div class="card">
@@ -984,10 +1025,10 @@ function home(err){
   </div>
 
   <div class="chips2" style="justify-content:center;margin-top:6px">
-    <span class="chip" id="pr-btn">🎓 تدريب حر</span>
-    <span class="chip ${P.snd!==false?'on':''}" id="ts">🔊 الصوت</span>
-    <span class="chip ${P.vib!==false?'on':''}" id="tv">📳 الاهتزاز</span>
-    <span class="chip" id="hw">❓ الشرح</span>
+    <span class="chip" id="pr-btn">تدريب حر</span>
+    <span class="chip ${P.snd!==false?'on':''}" id="ts">الصوت</span>
+    <span class="chip ${P.vib!==false?'on':''}" id="tv">الاهتزاز</span>
+    <span class="chip" id="hw">دليل اللعبة</span>
   </div>`;
 
   $('#of').onclick=levels;
@@ -1074,7 +1115,7 @@ function levels(){
   app.innerHTML=`
     <div class="top" style="margin:2px 0 12px">
       <b style="font-size:18px;color:var(--tx)">🗺️ خريطة مراحل الأوفلاين</b>
-      <span class="pt">🪙 ${P.coins}</span>
+      <span class="pt">${P.coins} عملة</span>
     </div>
     ${worldsHtml}
     <button id="bk" class="o" style="text-align:center;margin-top:8px">رجوع للرئيسية</button>`;
@@ -1205,7 +1246,7 @@ function soloQ(){
   SS.dl=Date.now()+SS.totMs;
   S.phase='solo';document.body.classList.add('play');
   const q=QS[SS.qid];
-  const headerTitle=SS.d.isDaily?'📅 التحدي اليومي':SS.d.isPractice?'🎓 تدريب حر':(SS.d.sub===6?`👑 زعيم العالم · ${SS.L}`:`مرحلة ${SS.L}`);
+  const headerTitle=SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'تدريب حر':(SS.d.sub===6?`👑 زعيم العالم · ${SS.L}`:`مرحلة ${SS.L}`);
 
   app.innerHTML=`
   <div class="card" style="margin-bottom:8px;padding:12px">
@@ -1219,7 +1260,7 @@ function soloQ(){
     <div id="sl" class="sg"></div>
 
     <div class="pw-bar">
-      <button type="button" class="pw-btn" id="pw-hint"><span>💡 تلميح</span><small>متاح: ${P.pw.hint}</small></button>
+      <button type="button" class="pw-btn" id="pw-hint"><span>تلميح</span><small>متاح: ${P.pw.hint}</small></button>
       <button type="button" class="pw-btn" id="pw-time"><span>⏱️ +15ث</span><small>متاح: ${P.pw.time}</small></button>
       <button type="button" class="pw-btn" id="pw-x2"><span>⚡ مضاعفة</span><small>متاح: ${P.pw.x2}</small></button>
     </div>
@@ -1437,7 +1478,7 @@ function shop(tab){
 
   app.innerHTML=`
   <div class="card">
-    <div class="top"><b style="font-size:16px;color:var(--gold)">🪙 ${P.coins}</b><span id="sm" style="color:var(--ok);font-weight:700"></span></div>
+    <div class="top"><b style="font-size:16px;color:var(--gold)">${P.coins} عملة</b><span id="sm" style="color:var(--ok);font-weight:700"></span></div>
     <div style="display:flex;gap:8px;margin-top:10px">
       <input id="nm" value="${esc(P.n)}" maxlength="16" style="margin:0;flex:1">
       <button id="sn" style="width:auto;margin:0;padding:0 16px">حفظ الاسم</button>
@@ -1668,7 +1709,7 @@ function showQ(){
     <div class="q" style="font-size:19px;margin:4px 0 10px">${esc(q[0])}</div>
     <div id="sl" class="sg"></div>
     <div class="pw-bar" style="grid-template-columns:1fr 1fr">
-      <button type="button" class="pw-btn" id="on-hint"><span>💡 تلميح شخصي</span><small>متاح: ${P.pw.hint}</small></button>
+      <button type="button" class="pw-btn" id="on-hint"><span>تلميح شخصي</span><small>متاح: ${P.pw.hint}</small></button>
       <button type="button" class="pw-btn" id="on-x2"><span>⚡ مضاعفة القادمة</span><small>متاح: ${P.pw.x2}</small></button>
     </div>
     <div class="chips" id="bd"></div>
