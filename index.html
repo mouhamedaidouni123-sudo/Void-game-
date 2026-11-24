@@ -723,7 +723,7 @@ function avatar3d(a){
   const styles=[`<path d="M23 43Q17 8 51 8Q84 8 78 46L70 30Q49 20 30 34Z"/>`,`<path d="M20 43Q17 13 50 12Q82 12 80 43L74 29Q68 39 65 40L62 27Q43 37 27 30Z"/>`,`<path d="M22 39Q22 9 50 9Q78 9 78 39L70 27Q52 18 31 29Z"/>`,`<path d="M20 42Q16 11 50 10Q84 11 80 42L73 30Q66 23 59 24L55 32 42 24 29 33Z"/>`];
   return `<svg class="portrait3d" viewBox="0 0 100 100" role="img" aria-label="شخصية ثلاثية الأبعاد"><defs><linearGradient id="skin${a}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".52"/><stop offset=".38" stop-color="${skin}"/><stop offset="1" stop-color="#694331"/></linearGradient><linearGradient id="shirt${a}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${accent}"/><stop offset="1" stop-color="${shirt}"/></linearGradient><radialGradient id="light${a}" cx=".28" cy=".18" r=".8"><stop stop-color="#fff" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></radialGradient></defs><ellipse cx="50" cy="97" rx="43" ry="29" fill="url(#shirt${a})"/><path d="M40 65h20v17H40z" fill="url(#skin${a})"/><ellipse cx="50" cy="43" rx="25" ry="30" fill="url(#skin${a})"/><path d="M25 43Q20 8 50 8Q82 8 77 45L70 29Q50 18 30 31Z" fill="${hair}"/>${styles[a%4]}<path d="M34 45q5-4 10 0M56 45q5-4 10 0" fill="none" stroke="#34251f" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="40" cy="49" rx="2.5" ry="3" fill="#171923"/><ellipse cx="60" cy="49" rx="2.5" ry="3" fill="#171923"/><path d="M50 49l-3 9 5 1" fill="none" stroke="#8a5542" stroke-width="1.8" stroke-linecap="round"/><path d="M43 64q7 5 14 0" fill="none" stroke="#743e3a" stroke-width="2" stroke-linecap="round"/><ellipse cx="50" cy="50" rx="25" ry="42" fill="url(#light${a})"/><path d="M27 39q-3 17 2 27M73 39q3 17-2 27" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2"/></svg>`;
 }
-const avh=(a,f,big)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${avatar3d(a)}</i></span>`;
+const avh=(a,f,big,photo)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${photo?`<img src="${photo}" alt="صورة اللاعب" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:avatar3d(a)}</i></span>`;
 
 let P={n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',history:[]};
 try{
@@ -894,7 +894,7 @@ async function showLocalRecords(){
     }catch(e){content.innerHTML='<p class="s">تعذر تحميل الترتيب. قد تحتاج قواعد Firebase إلى السماح بالقراءة والكتابة لمسار leaderboard.</p>'}}
 }
 const vp=d=>({a:AV[d&&d.a|0]?d.a|0:0,f:FR[d&&d.f|0]?d.f|0:0,c:NC[d&&d.c|0]?d.c|0:0});
-const pn=p=>{const ok=!!p.ok,f=ef(FR[p.f|0]?p.f|0:0,ok),c=ec(NC[p.c|0]?p.c|0:0,ok);return avh(AV[p.a|0]?p.a|0:0,f)+`<span class="nc${c}">${esc(p.n)}</span>`+(ok?'<span class="vb">✓</span>':'')};
+const pn=p=>{const ok=!!p.ok,f=ef(FR[p.f|0]?p.f|0:0,ok),c=ec(NC[p.c|0]?p.c|0:0,ok);return avh(AV[p.a|0]?p.a|0:0,f,false,p.photo)+`<span class="nc${c}">${esc(p.n)}</span>`+(ok?'<span class="vb">✓</span>':'')};
 const T=60000,N=8;
 const norm=s=>String(s).replace(/[\u064B-\u065F\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim().toLowerCase().replace(/^ال(?=.{3})/,'');
 const MAPS=QS.map(q=>{const m={};q[1].forEach((a,k)=>[].concat(a).forEach(v=>m[norm(v)]=k));return m});
@@ -1086,7 +1086,7 @@ function home(err){
       <span class="chip" id="st-btn" style="font-size:12px;padding:4px 10px">الإنجازات</span>
       <span class="pt" style="font-size:16px">${P.coins} عملة</span>
     </div>
-    ${avh(P.a,ef(P.f,!!O),1)}
+    ${avh(P.a,ef(P.f,!!O),1,P.photo)}
     <div style="font-size:20px;font-weight:800;margin-top:8px"><span class="nc${ec(P.c,!!O)}">${esc(P.n)}</span>${O?'<span class="vb">✓</span>':''}</div>
     <div class="s" style="margin:4px 0 12px;font-size:13px">${done}/${LV} مرحلة · ${totalStars} نجمة</div>
     <button id="sh" class="o" style="text-align:center;margin-top:0">المتجر والتخصيص</button>
@@ -1256,6 +1256,7 @@ function levels(){
 }
 
 function intro(L){
+  S.phase='intro';document.body.classList.remove('play');
   const d=lvDef(L),tg=lvTg(d);
   const best=P.best[L]||0;
   app.innerHTML=`
@@ -1521,52 +1522,41 @@ function soloEnd(){
 }
 
 function soloResult(){
+  if(!SS||!SS.d)return;
+  clearInterval(SS.tm);
   document.body.classList.remove('play');
   const pass=SS.score>=SS.tg;
   const st=!pass?0:SS.score>=SS.tg*1.7?3:SS.score>=SS.tg*1.35?2:1;
   let earn=Math.floor(SS.score/4);
+  const isStage=!SS.d.isDaily&&!SS.d.isPractice&&!SS.d.isSpeed;
 
-  if(SS.d.isDaily){
-    if(pass&&P.daily!==SS.d.todayKey){
-      P.daily=SS.d.todayKey;
-      if(updateDailyStreak(SS.d.todayKey))earn+=60;
-    }
-  }else if(!SS.d.isPractice){
+  // حفظ التقدم وفتح المرحلة التالية قبل تشغيل أي مؤثرات أو خدمات إضافية.
+  if(isStage){
     P.lv=P.lv||{};
-    const old=P.lv[SS.L]||0;
-    if(SS.score>(P.best[SS.L]||0))P.best[SS.L]=SS.score;
+    P.best=P.best||{};
+    P.unlocked=P.unlocked||{};
+    const old=Number(P.lv[SS.L])||0;
+    P.best[SS.L]=Math.max(Number(P.best[SS.L])||0,SS.score);
     if(pass){
       if(!old)earn+=18+SS.L*2;
-      if(st>old){earn+=(st-old)*12}
-      // اجتياز المرحلة يفتح التالية حتى عند إعادة اللعب أو وجود بيانات قديمة.
-      P.lv[SS.L]=Math.max(Number(old)||0,st);
-      P.unlocked=P.unlocked||{};
+      if(st>old)earn+=(st-old)*12;
+      P.lv[SS.L]=Math.max(old,st);
       if(SS.L<LV)P.unlocked[SS.L+1]=true;
     }
   }
+  if(SS.d.isDaily&&pass&&P.daily!==SS.d.todayKey){
+    P.daily=SS.d.todayKey;
+    try{if(updateDailyStreak(SS.d.todayKey))earn+=60}catch(e){console.warn('daily streak:',e)}
+  }
 
-  P.coins+=earn;
-  const md=ensureDailyMissions();md.matches=(md.matches||0)+1;
-  if(SS.d.isDaily&&pass)md.daily=1;
-  P.stats.g=(P.stats.g||0)+1;
-  if(pass)P.stats.w=(P.stats.w||0)+1;
-  const xpEarned=Math.max(5,Math.floor(SS.score/3)+(pass?25:0));
-  awardXP(xpEarned,SS.d.isDaily?'التحدي اليومي':'اللعب الفردي');
-  const soloMode=SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`المرحلة ${SS.L}`;
-  addHistory(soloMode,SS.score,pass,earn);
-  publishScore(SS.score,soloMode);
-  submitLeaderboard(SS.score,SS.d.isSpeed?'تحدي السرعة':SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`مرحلة ${SS.L}`);
-  checkAchievements();
-  save();
-
-  if(pass){sfx.win();confetti();vib([40,60,40])}else sfx.lose();
-  S.phase='lv';
-
+  P.coins=(Number(P.coins)||0)+earn;
+  S.phase='result';
   const titleTxt=SS.d.isDaily?(pass?'أتممت التحدي اليومي!':'حاول مجدداً في التحدي اليومي')
                 :SS.d.isSpeed?(pass?'نجحت في تحدي السرعة!':'انتهى تحدي السرعة!')
                 :SS.d.isPractice?'انتهى التدريب الحر!'
                 :(pass?`اجتزت المرحلة ${SS.L} بنجاح!`:`لم تصل للهدف في المرحلة ${SS.L}`);
 
+  // عرض النتيجة فوراً حتى لو تعذّر تحديث لوحة المتصدرين أو الإنجازات.
   app.innerHTML=`
   <div class="card" style="text-align:center">
     <div style="font-size:48px">${pass?'🏆':'💪'}</div>
@@ -1575,14 +1565,15 @@ function soloResult(){
     <div class="row"><span>نقاطك المحققة</span><b style="font-size:17px">${SS.score}</b></div>
     <div class="row"><span>الهدف المطلوب (${SS.d.nq} أسئلة)</span><b>${SS.tg}</b></div>
     <div class="row"><span>العملات المكتسبة</span><b class="pt" style="font-size:16px">+${earn} 🪙</b></div>
-    <div class="row"><span>الخبرة المكتسبة</span><b style="color:var(--pri)">+${xpEarned} XP</b></div>
+    <div class="row"><span>الخبرة المكتسبة</span><b style="color:var(--pri)" id="xp-earned">تُحتسب...</b></div>
     ${SS.d.isDaily&&pass?`<div class="row"><span>سلسلة التحدي اليومي</span><b>🔥 ${P.streak} يوم</b></div>`:''}
   </div>
-  ${!SS.d.isDaily&&!SS.d.isPractice&&pass&&SS.L<LV?`<button id="nl">الانتقال للمرحلة ${SS.L+1} ←</button>`:''}
+  ${isStage&&pass&&SS.L<LV?`<button id="nl">الانتقال للمرحلة ${SS.L+1} ←</button>`:''}
   <button id="rt" class="o" style="text-align:center;margin-top:8px">${pass?'إعادة اللعب لتحسين النجوم':'حاول مرة أخرى 🔄'}</button>
-  <button id="bk" class="o" style="text-align:center;margin-top:8px">${SS.d.isDaily||SS.d.isPractice?'العودة للرئيسية':'العودة لخريطة المراحل'}</button>`;
+  <button id="bk" class="o" style="text-align:center;margin-top:8px">${SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed?'العودة للرئيسية':'العودة لخريطة المراحل'}</button>`;
 
-  const nl=$('#nl');if(nl)nl.onclick=()=>intro(SS.L+1);
+  const nl=$('#nl');
+  if(nl)nl.onclick=()=>intro(SS.L+1);
   $('#rt').onclick=()=>{
     if(SS.d.isDaily)startDailyChallenge();
     else if(SS.d.isSpeed)startSpeedChallenge();
@@ -1590,6 +1581,26 @@ function soloResult(){
     else solo(SS.L);
   };
   $('#bk').onclick=()=>SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed?home():levels();
+
+  // الخدمات غير الأساسية لا يجوز أن تمنع ظهور شاشة النتيجة أو فتح المرحلة التالية.
+  let xpEarned=5;
+  try{
+    const md=ensureDailyMissions();md.matches=(md.matches||0)+1;
+    if(SS.d.isDaily&&pass)md.daily=1;
+    P.stats=P.stats||{g:0,w:0,ans:0,maxCombo:0};
+    P.stats.g=(P.stats.g||0)+1;
+    if(pass)P.stats.w=(P.stats.w||0)+1;
+    xpEarned=Math.max(5,Math.floor(SS.score/3)+(pass?25:0));
+    awardXP(xpEarned,SS.d.isDaily?'التحدي اليومي':'اللعب الفردي');
+    const soloMode=SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`المرحلة ${SS.L}`;
+    addHistory(soloMode,SS.score,pass,earn);
+    publishScore(SS.score,soloMode);
+    submitLeaderboard(SS.score,SS.d.isSpeed?'تحدي السرعة':SS.d.isDaily?'التحدي اليومي':SS.d.isPractice?'التدريب الحر':`مرحلة ${SS.L}`);
+    checkAchievements();
+  }catch(e){console.error('نتيجة المرحلة:',e)}
+  try{save()}catch(e){console.error('حفظ التقدم:',e)}
+  const xpEl=$('#xp-earned');if(xpEl)xpEl.textContent=`+${xpEarned} XP`;
+  try{if(pass){sfx.win();confetti();vib([40,60,40])}else sfx.lose()}catch(e){}
 }
 
 /* ===== المتجر (الشخصيات + الإطارات + الألوان + المساعدات) ===== */
@@ -1621,10 +1632,17 @@ function shop(tab){
     const items=L.map((it,i)=>{
       const ow=(tab==='f'&&i===11)||(tab==='c'&&i===14);if(ow&&!O)return '';
       const own=P.own[tab].includes(i)||(O&&ow),cur=P[tab]===i,price=it[pi];
-      const pre=tab==='c'?`<span class="nc${i}" style="font-size:16px">${esc(P.n)}</span>`:avh(tab==='a'?i:P.a,tab==='f'?i:P.f);
+      const pre=tab==='c'?`<span class="nc${i}" style="font-size:16px">${esc(P.n)}</span>`:avh(tab==='a'?i:P.a,tab==='f'?i:P.f, false, tab==='a'&&i===P.a?P.photo:null);
       return `<div class="it ${cur?'sel':''}" data-i="${i}">${pre}<div>${it[tab==='a'?3:0]}</div><b>${cur?'✔ مستخدم':own?'اختيار':price===0?'مجاني':'🪙 '+price}</b></div>`;
     }).join('');
-    content=`<div class="gr3">${items}</div>`;
+    content=`${tab==='a'?`<div class="card" style="margin-bottom:12px;text-align:center">
+      <div style="font-weight:800;margin-bottom:8px">🖼️ صورتك الشخصية</div>
+      <div style="display:flex;justify-content:center;margin-bottom:10px">${avh(P.a,ef(P.f,!!O),1,P.photo)}</div>
+      <input id="avatar-file" type="file" accept="image/*" style="display:none">
+      <button id="pick-avatar" type="button">اختيار صورة من معرض الهاتف</button>
+      ${P.photo?'<button id="remove-avatar" class="o" type="button" style="margin-top:7px">إزالة الصورة والعودة للأفاتار</button>':''}
+      <small style="display:block;color:var(--mut);margin-top:7px">ستُقص الصورة تلقائياً لتناسب إطار الشخصية</small>
+    </div>`:''}<div class="gr3">${items}</div>`;
   }
 
   app.innerHTML=`
@@ -1639,6 +1657,30 @@ function shop(tab){
   ${content}
   ${O?'<button id="lo" class="o" style="text-align:center;margin-top:10px">إيقاف وضع المطوّر</button>':''}
   <button id="bk" class="o" style="text-align:center;margin-top:14px">رجوع للرئيسية</button>`;
+
+  const avatarInput=$('#avatar-file');
+  $('#pick-avatar')?.addEventListener('click',()=>avatarInput?.click());
+  avatarInput?.addEventListener('change',()=>{
+    const file=avatarInput.files&&avatarInput.files[0];
+    if(!file)return;
+    if(!file.type.startsWith('image/')){alert('اختر ملف صورة صالحاً');return;}
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+        const ctx=canvas.getContext('2d'),side=Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,size,size);
+        P.photo=canvas.toDataURL('image/jpeg',0.78);
+        save();shop('a');
+      };
+      img.onerror=()=>alert('تعذّر فتح الصورة، جرّب صورة أخرى');
+      img.src=reader.result;
+    };
+    reader.onerror=()=>alert('تعذّرت قراءة الصورة');
+    reader.readAsDataURL(file);
+  });
+  $('#remove-avatar')?.addEventListener('click',()=>{delete P.photo;save();shop('a')});
 
   const msg=t=>{$('#sm').textContent=t};
   app.querySelectorAll('[data-t]').forEach(e=>e.onclick=()=>shop(e.dataset.t));
@@ -1963,7 +2005,12 @@ function finish(){
       clearInterval(SS.tm);
       document.body.classList.remove('play');
       if(SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed)home();
-      else intro(SS.L);
+      else levels();
+    }else if(S.phase==='intro'){
+      levels();
+    }else if(S.phase==='result'&&SS){
+      if(SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed)home();
+      else levels();
     }else if(['lobby','q','r'].includes(S.phase)){
       if(typeof leaveRoom==='function')leaveRoom();
       else home();
