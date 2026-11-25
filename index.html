@@ -482,8 +482,13 @@ input:focus{border-color:#8b7cff;box-shadow:0 0 0 3px #8b7cff20}
 .sg .av3d-wrap{width:20px;height:20px}
 
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:0;margin:0 0 8px;font-weight:700;font-size:15px}
+.pbtn{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#252042,#1a1730);color:#ede9fe;border:1px solid #6d5bd0;margin:0 0 8px;font-weight:700;font-size:14.5px;box-shadow:0 4px 14px #0004}
 .acc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin-bottom:8px;font-size:13px;text-align:right}
 .acc span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.acc button{width:auto;margin:0;padding:6px 12px;font-size:12px}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;background:#0a0f18;padding:4px;border-radius:12px;border:1px solid var(--bd)}
+.auth-tab{margin:0;padding:8px;font-size:13.5px;background:transparent;border:0;color:var(--mut);box-shadow:none}
+.auth-tab.on{background:linear-gradient(135deg,#7168e8,#4e58a8);color:#fff}
+.auth-err{color:var(--bad);font-size:13px;min-height:18px;margin:4px 0 8px;text-align:center;font-weight:600}
 </style>
 </head>
 <body>
@@ -981,7 +986,10 @@ async function cloudLoad(){
         return 'restored';
       }
     }
-    if(!P.n&&CU.displayName)P.n=CU.displayName.slice(0,16);
+    if(!P.n){
+      if(CU.displayName)P.n=CU.displayName.slice(0,16);
+      else if(CU.email)P.n=CU.email.split('@')[0].slice(0,16);
+    }
     if(P.n){P.ts=Date.now();try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}await cloudNow()}
   }catch(e){}
   return '';
@@ -995,9 +1003,100 @@ function authInit(){
       CU=u;
       let r='';
       if(u)r=await cloudLoad();
-      if(typeof S!=='undefined'&&S.phase==='home'){home();if(r==='restored')customAlert('تم استرجاع حسابك وتقدمك بنجاح')}
+      if(typeof S!=='undefined'&&S.phase==='home'){home();if(r==='restored')customAlert('تم استرجاع حسابك وتقدمك بنجاح ☁️')}
     });
   }catch(e){}
+}
+function userToEmail(raw){
+  const v=String(raw||'').trim().toLowerCase();
+  if(!v)return '';
+  if(v.includes('@'))return v;
+  const clean=v.replace(/\s+/g,'_').replace(/[^a-z0-9._-]/g,'');
+  return clean?`${clean}@voidgame.app`:'';
+}
+function authErrorText(code){
+  switch(code){
+    case 'auth/email-already-in-use':return 'اسم المستخدم أو البريد مسجّل مسبقاً، اختر «تسجيل الدخول»';
+    case 'auth/invalid-email':return 'صيغة اسم المستخدم أو البريد غير صالحة (استخدم أحرفاً إنجليزية وأرقاماً أو بريداً إلكترونياً)';
+    case 'auth/weak-password':return 'كلمة السر ضعيفة، يجب أن تكون 6 أحرف أو أرقام على الأقل';
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':return 'اسم المستخدم/البريد أو كلمة السر غير صحيحة';
+    case 'auth/operation-not-allowed':return 'تسجيل الدخول بالبريد وكلمة المرور غير مفعّل في Firebase';
+    case 'auth/network-request-failed':return 'تحقق من اتصالك بالإنترنت وحاول مجدداً';
+    case 'auth/too-many-requests':return 'محاولات كثيرة متتالية، انتظر قليلاً ثم أعد المحاولة';
+    default:return 'تعذّر إتمام العملية ('+(code||'خطأ')+')';
+  }
+}
+function openPasswordAuth(defaultMode='register'){
+  if(!online()){customAlert('إنشاء الحساب وتسجيل الدخول يحتاجان اتصالاً بالإنترنت');return}
+  authInit();
+  if(!AUTH){customAlert('تعذّر تحميل خدمة المصادقة');return}
+  let mode=defaultMode;
+  const m=document.createElement('div');m.className='modal';
+  const render=()=>{
+    const isReg=mode==='register';
+    m.innerHTML=`<div class="mc">
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab ${isReg?'on':''}" id="tab-reg">إنشاء حساب جديد</button>
+        <button type="button" class="auth-tab ${!isReg?'on':''}" id="tab-log">تسجيل الدخول</button>
+      </div>
+      <h3>${isReg?'🔐 إنشاء كلمة سر خاصة بك':'🔑 تسجيل الدخول بحسابك'}</h3>
+      <p style="margin-bottom:10px">${isReg?'أنشئ اسماً وكلمة سر خاصة لحفظ عملاتك ومراحلك وشخصياتك واسترجاعها من أي جهاز.':'أدخل اسم المستخدم (أو البريد) وكلمة السر لاسترجاع تقدمك المحفوظ.'}</p>
+      ${isReg?`<input id="au-nick" placeholder="اسمك داخل اللعبة (مثال: موح)" maxlength="16" value="${esc(P.n||'')}">`:''}
+      <input id="au-user" placeholder="اسم المستخدم بالإنجليزية أو البريد (مثال: mouh123)" autocomplete="username" style="direction:ltr;text-align:right">
+      <input id="au-pass" type="password" placeholder="كلمة السر الخاصة بك (6 أحرف على الأقل)" autocomplete="${isReg?'new-password':'current-password'}" style="direction:ltr;text-align:right">
+      ${isReg?`<input id="au-pass2" type="password" placeholder="تأكيد كلمة السر" autocomplete="new-password" style="direction:ltr;text-align:right">`:''}
+      <div class="auth-err" id="au-err"></div>
+      <button type="button" id="au-sub">${isReg?'إنشاء الحساب وحفظ تقدمي 🚀':'دخول واسترجاع التقدم ☁️'}</button>
+      <button type="button" id="au-cls" class="o" style="text-align:center;margin-top:8px">إلغاء</button>
+    </div>`;
+    m.querySelector('#tab-reg').onclick=()=>{mode='register';render()};
+    m.querySelector('#tab-log').onclick=()=>{mode='login';render()};
+    m.querySelector('#au-cls').onclick=()=>m.remove();
+    const errBox=m.querySelector('#au-err');
+    const submitBtn=m.querySelector('#au-sub');
+    submitBtn.onclick=async()=>{
+      const rawUser=m.querySelector('#au-user').value.trim();
+      const pass=m.querySelector('#au-pass').value;
+      const email=userToEmail(rawUser);
+      if(!rawUser||!email){errBox.textContent='أدخل اسم مستخدم بالإنجليزية/أرقام أو بريداً إلكترونياً';return}
+      if(!pass||pass.length<6){errBox.textContent='كلمة السر يجب أن تكون 6 أحرف على الأقل';return}
+      if(isReg){
+        const nick=m.querySelector('#au-nick').value.trim();
+        const pass2=m.querySelector('#au-pass2').value;
+        if(!nick){errBox.textContent='اكتب اسمك داخل اللعبة';return}
+        if(pass!==pass2){errBox.textContent='كلمتا السر غير متطابقتين';return}
+        submitBtn.disabled=true;submitBtn.textContent='جارٍ إنشاء الحساب...';
+        try{
+          const cred=await AUTH.createUserWithEmailAndPassword(email,pass);
+          P.n=nick.slice(0,16);
+          P.loginUser=rawUser;
+          try{await cred.user.updateProfile({displayName:P.n})}catch(_){}
+          save();
+          await cloudNow();
+          m.remove();
+          home();
+          customAlert('تم إنشاء حسابك وحفظ معلوماتك وتقدمك بنجاح 🎉');
+        }catch(e){
+          submitBtn.disabled=false;submitBtn.textContent='إنشاء الحساب وحفظ تقدمي 🚀';
+          errBox.textContent=authErrorText(e&&e.code);
+        }
+      }else{
+        submitBtn.disabled=true;submitBtn.textContent='جارٍ تسجيل الدخول...';
+        try{
+          await AUTH.signInWithEmailAndPassword(email,pass);
+          P.loginUser=rawUser;
+          m.remove();
+        }catch(e){
+          submitBtn.disabled=false;submitBtn.textContent='دخول واسترجاع التقدم ☁️';
+          errBox.textContent=authErrorText(e&&e.code);
+        }
+      }
+    };
+  };
+  render();
+  document.body.appendChild(m);
 }
 async function gSignIn(){
   if(!online()){customAlert('تسجيل الدخول يحتاج اتصالاً بالإنترنت');return}
@@ -1017,13 +1116,19 @@ async function gSignOut(){
 }
 function accountHTML(){
   if(typeof firebase==='undefined'||!firebase.auth)return '';
-  if(CU)return `<div class="acc"><span>☁️ حسابك محفوظ · ${esc(CU.displayName||CU.email||'Google')}</span><button id="gout" class="o" type="button">خروج</button></div>`;
-  return `<button id="gin" class="gbtn" type="button">${GLOGO}<span>تسجيل الدخول بجوجل لحفظ تقدمك</span></button>`;
+  if(CU){
+    const label=CU.displayName||P.loginUser||(CU.email&&CU.email.endsWith('@voidgame.app')?CU.email.replace('@voidgame.app',''):CU.email)||'حسابي';
+    return `<div class="acc"><span>☁️ حسابك محفوظ · ${esc(label)}</span><div style="display:flex;gap:6px"><button id="sync-now" class="o" type="button">حفظ الآن</button><button id="gout" class="o" type="button">خروج</button></div></div>`;
+  }
+  return `<button id="pin" class="pbtn" type="button">🔐 إنشاء كلمة سر خاصة / تسجيل الدخول</button>
+  <button id="gin" class="gbtn" type="button">${GLOGO}<span>تسجيل الدخول بجوجل (اختياري)</span></button>`;
 }
 function bindAccount(){
-  const a=$('#gin'),b=$('#gout');
+  const p=$('#pin'),a=$('#gin'),b=$('#gout'),sy=$('#sync-now');
+  if(p)p.onclick=()=>openPasswordAuth('register');
   if(a)a.onclick=gSignIn;
   if(b)b.onclick=gSignOut;
+  if(sy)sy.onclick=async()=>{await cloudNow();customAlert('تم حفظ جميع معلوماتك وتقدمك في السحابة ✅')};
 }
 const save=()=>{P.ts=Date.now();try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}cloudPush()};
 const localDay=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -1297,11 +1402,17 @@ function home(err){
   S.phase='home';document.body.classList.remove('play');
   if(!P.n){
     app.innerHTML=`<div class="card">
-      <p class="s" style="margin:0 0 12px;font-size:15px;color:var(--tx)">أهلاً بك في عالم <b>VOID</b>! اكتب اسمك للبدء</p>
+      <p class="s" style="margin:0 0 12px;font-size:15px;color:var(--tx)">أهلاً بك في عالم <b>VOID</b>! اكتب اسمك للبدء أو سجّل دخولك</p>
       <input id="nm" placeholder="اسمك المستعار..." maxlength="16">
-      <button id="sv">حفظ ومتابعة 🚀</button>
+      <button id="sv">البدء كزائر 🚀</button>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
+        <button id="w-reg" class="pbtn" type="button">🔐 إنشاء حساب بكلمة سر خاصة</button>
+        <button id="w-log" class="o" type="button" style="text-align:center">🔑 لدي حساب مسبق (تسجيل الدخول)</button>
+      </div>
     </div>`;
     $('#sv').onclick=()=>{const v=$('#nm').value.trim();if(v){P.n=v;save();home()}};
+    $('#w-reg').onclick=()=>openPasswordAuth('register');
+    $('#w-log').onclick=()=>openPasswordAuth('login');
     return;
   }
   checkAchievements();
