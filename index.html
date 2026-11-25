@@ -487,6 +487,8 @@ input:focus{border-color:#8b7cff;box-shadow:0 0 0 3px #8b7cff20}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#555;margin-inline-start:6px;vertical-align:middle}.dot.on{background:#22c55e;box-shadow:0 0 6px #22c55e}
 .bdg{background:#ef4444;color:#fff;border-radius:999px;padding:1px 7px;font-size:11px;margin-inline-start:6px}.bdg:empty{display:none}
 .fr{align-items:center;gap:8px}.fr button{width:auto;margin:0 0 0 4px;padding:6px 12px;font-size:12px}
+#vcw{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;z-index:45;display:flex;align-items:center;gap:4px;background:#141319ee;border:1px solid var(--bd);border-radius:999px;padding:2px 10px 2px 4px;color:var(--tx);box-shadow:0 2px 10px #0008}
+#vcw button{width:auto;margin:0;padding:4px 8px;font-size:17px;background:transparent}#vcw span{font-size:13px}
 </style>
 </head>
 <body>
@@ -1141,6 +1143,128 @@ async function invModal(){
     try{await db.ref('invites/'+b.dataset.k+'/'+uid).set({n:String(P.n).slice(0,16),code:S.code,ts:firebase.database.ServerValue.TIMESTAMP});b.textContent='تمت الدعوة';b.disabled=true}catch(e){b.textContent='فشل'}
   });
   document.body.appendChild(m);
+}
+
+/* ===== الدردشة الصوتية ===== */
+const VC={on:false,mute:false,stream:null,peers:{},list:{},speak:{},meters:{},offs:[],tick:null,ac:null,code:'',me:''};
+const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]};
+const vcBox=()=>{let b=$('#vcbox');if(!b){b=document.createElement('div');b.id='vcbox';b.style.display='none';document.body.appendChild(b)}return b};
+function vcSend(to,t,d){try{fbDb().ref('rooms/'+VC.code+'/sig/'+to).push({f:VC.me,t,d:JSON.stringify(d),ts:firebase.database.ServerValue.TIMESTAMP})}catch(e){}}
+function vcMeter(k,stream){
+  try{
+    VC.ac=VC.ac||new(window.AudioContext||window.webkitAudioContext)();
+    const src=VC.ac.createMediaStreamSource(stream),an=VC.ac.createAnalyser();an.fftSize=512;src.connect(an);
+    VC.meters[k]={an,buf:new Uint8Array(an.fftSize)};
+  }catch(e){}
+}
+function vcTickF(){
+  for(const k in VC.meters){
+    const m=VC.meters[k];m.an.getByteTimeDomainData(m.buf);
+    let r=0;for(let i=0;i<m.buf.length;i++){const v=(m.buf[i]-128)/128;r+=v*v}
+    VC.speak[k]=Math.sqrt(r/m.buf.length)>0.04&&!(k===VC.me&&VC.mute);
+  }
+  document.querySelectorAll('[data-pid]').forEach(e=>{const d=e.querySelector('.dot');if(d)d.classList.toggle('on',!!VC.speak[e.dataset.pid])});
+}
+function vcPeer(k){
+  if(VC.peers[k])return VC.peers[k];
+  const pc=new RTCPeerConnection(ICE),o={pc,au:null,q:[]};
+  VC.stream.getTracks().forEach(t=>pc.addTrack(t,VC.stream));
+  pc.onicecandidate=e=>{if(e.candidate)vcSend(k,'ice',e.candidate.toJSON())};
+  pc.ontrack=e=>{
+    if(o.au)return;
+    const au=document.createElement('audio');au.autoplay=true;au.playsInline=true;au.srcObject=e.streams[0];
+    vcBox().appendChild(au);o.au=au;au.play().catch(()=>{});vcMeter(k,e.streams[0]);
+  };
+  pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed'||pc.connectionState==='closed')vcDrop(k)};
+  VC.peers[k]=o;return o;
+}
+function vcDrop(k){
+  const o=VC.peers[k];
+  if(o){try{o.pc.close()}catch(e){}if(o.au){o.au.srcObject=null;o.au.remove()}delete VC.peers[k]}
+  delete VC.meters[k];delete VC.speak[k];
+}
+async function vcOffer(k){
+  if(VC.peers[k])return;
+  try{
+    const o=vcPeer(k),of=await o.pc.createOffer();
+    await o.pc.setLocalDescription(of);vcSend(k,'offer',{type:of.type,sdp:of.sdp});
+  }catch(e){vcDrop(k)}
+}
+async function vcSig(m){
+  if(!VC.on||!m||!m.f)return;
+  const k=String(m.f);let d;try{d=JSON.parse(m.d)}catch(e){return}
+  try{
+    if(m.t==='offer'){
+      vcDrop(k);const o=vcPeer(k);
+      await o.pc.setRemoteDescription(d);
+      for(const c of o.q.splice(0))await o.pc.addIceCandidate(c).catch(()=>{});
+      const an=await o.pc.createAnswer();await o.pc.setLocalDescription(an);
+      vcSend(k,'answer',{type:an.type,sdp:an.sdp});
+    }else if(m.t==='answer'){
+      const o=VC.peers[k];if(!o)return;
+      await o.pc.setRemoteDescription(d);
+      for(const c of o.q.splice(0))await o.pc.addIceCandidate(c).catch(()=>{});
+    }else if(m.t==='ice'){
+      const o=VC.peers[k]||vcPeer(k);
+      if(o.pc.remoteDescription)await o.pc.addIceCandidate(d).catch(()=>{});else o.q.push(d);
+    }
+  }catch(e){}
+}
+async function vcJoin(){
+  if(VC.on||!S.room||S.auto)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof RTCPeerConnection==='undefined'){customAlert('متصفحك لا يدعم الدردشة الصوتية');return}
+  const base=fbDb().ref('rooms/'+S.code);
+  try{const sn=await base.child('vc').once('value');if(sn.numChildren()>=5){customAlert('الغرفة الصوتية ممتلئة (5 أشخاص كحد أقصى)');return}}catch(e){}
+  try{VC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false})}
+  catch(e){customAlert('لم يتم السماح باستخدام الميكروفون. فعّله من إعدادات المتصفح ثم أعد المحاولة.');return}
+  Object.assign(VC,{on:true,mute:false,code:S.code,me:S.room.me,peers:{},list:{},speak:{},meters:{}});
+  vcMeter(VC.me,VC.stream);try{VC.ac.resume()}catch(e){}
+  const sg=base.child('sig/'+VC.me),vl=base.child('vc'),mine=vl.child(VC.me);
+  sg.remove();
+  const fs=sg.on('child_added',x=>{const v=x.val();x.ref.remove();if(v)vcSig(v)});
+  const fa=vl.on('child_added',x=>{const k=x.key,v=x.val()||{};VC.list[k]={n:String(v.n||'لاعب').slice(0,16),m:v.m|0};if(k!==VC.me&&VC.me>k)vcOffer(k);vcRender()});
+  const fc=vl.on('child_changed',x=>{const v=x.val()||{};if(VC.list[x.key])VC.list[x.key].m=v.m|0;vcRender()});
+  const fr=vl.on('child_removed',x=>{delete VC.list[x.key];vcDrop(x.key);vcRender()});
+  VC.offs=[()=>sg.off('child_added',fs),()=>vl.off('child_added',fa),()=>vl.off('child_changed',fc),()=>vl.off('child_removed',fr)];
+  mine.onDisconnect().remove();
+  mine.set({n:String(P.n).slice(0,16),m:0});
+  VC.tick=setInterval(vcTickF,150);
+  vcRender();
+}
+function vcMute(){
+  if(!VC.on)return;
+  VC.mute=!VC.mute;VC.stream.getAudioTracks().forEach(t=>t.enabled=!VC.mute);
+  try{fbDb().ref('rooms/'+VC.code+'/vc/'+VC.me).update({m:VC.mute?1:0})}catch(e){}
+  vcRender();
+}
+function vcLeave(){
+  if(!VC.on)return;
+  clearInterval(VC.tick);VC.offs.forEach(f=>{try{f()}catch(e){}});
+  Object.keys(VC.peers).forEach(vcDrop);
+  try{VC.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+  try{const b=fbDb().ref('rooms/'+VC.code);b.child('vc/'+VC.me).remove();b.child('sig/'+VC.me).remove()}catch(e){}
+  VC.on=false;VC.stream=null;VC.list={};VC.meters={};VC.speak={};VC.offs=[];
+  const bx=$('#vcbox');if(bx)bx.innerHTML='';
+  vcRender();
+}
+const vcCard=()=>(S.auto||!S.room)?'':'<div class="card"><b>🎙️ الدردشة الصوتية</b><div id="vcp" style="margin-top:8px"></div></div>';
+function vcRender(){
+  const p=$('#vcp');
+  if(p){
+    if(!VC.on){
+      p.innerHTML='<p class="s" style="margin:0 0 8px">تحدث مع أصدقائك أثناء اللعب (حتى 5 أشخاص)</p><button id="vj">🎤 انضمام للصوت</button>';
+      $('#vj').onclick=vcJoin;
+    }else{
+      p.innerHTML=Object.keys(VC.list).map(k=>`<div class="row fr" data-pid="${k}"><span>${S.players[k]?pn(S.players[k]):esc(VC.list[k].n)}${VC.list[k].m?' 🔇':''}</span><i class="dot ${VC.speak[k]?'on':''}"></i></div>`).join('')
+        +`<div style="display:flex;gap:8px;margin-top:8px"><button id="vm" class="${VC.mute?'o':''}" style="margin:0">${VC.mute?'🔇 تشغيل المايك':'🎤 كتم المايك'}</button><button id="vl" class="o" style="margin:0">خروج</button></div>`;
+      $('#vm').onclick=vcMute;$('#vl').onclick=vcLeave;
+    }
+  }
+  let w=$('#vcw');
+  if(!VC.on||!S.room){if(w)w.remove();return}
+  if(!w){w=document.createElement('div');w.id='vcw';document.body.appendChild(w)}
+  w.innerHTML=`<button id="vw" type="button">${VC.mute?'🔇':'🎤'}</button><span>${Object.keys(VC.list).length}</span>`;
+  $('#vw').onclick=vcMute;
 }
 const save=()=>{P.ts=Date.now();try{localStorage.setItem('vp',JSON.stringify(P))}catch(e){}cloudPush()};
 const localDay=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -2122,6 +2246,7 @@ async function enter(c,host,auto){
 }
 
 function leaveRoom(){
+  vcLeave();
   if(S.room){
     try{S.room.emit('leave',{})}catch(e){}
     try{S.room.close()}catch(e){}
@@ -2211,11 +2336,13 @@ function lobby(){
   <p class="s" style="margin:10px 0 0;font-size:13px">${QS.filter(q=>S.sel.has(q[2])).length} سؤالاً متاحاً في المواضيع المختارة</p></div>`:'';
   app.innerHTML=`<div class="card"><p class="s" style="margin:0">كود الغرفة (شاركه مع أصدقائك)</p>
   <div class="code">${S.code}</div></div>
+  ${vcCard()}
   <div class="card"><b>اللاعبون (${Object.keys(S.players).length})</b>${list}</div>${cfg}
   ${S.host?'<button id="go">ابدأ اللعبة 🚀</button>':'<p class="s">بانتظار المضيف ليبدأ...</p>'}
   ${CU?'<button id="inv-fr" class="o" style="text-align:center;margin-top:8px">👥 دعوة صديق</button>':''}
   <button id="lv-rm" class="o" style="text-align:center;margin-top:8px">مغادرة الغرفة</button>`;
   $('#lv-rm').onclick=leaveRoom;
+  vcRender();
   if($('#inv-fr'))$('#inv-fr').onclick=invModal;
   if(S.host){
     app.querySelectorAll('#cats .chip').forEach(e=>e.onclick=()=>{const c=e.dataset.c;if(S.sel.has(c)){if(S.sel.size>1)S.sel.delete(c)}else S.sel.add(c);lobby()});
