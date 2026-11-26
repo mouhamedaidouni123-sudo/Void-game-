@@ -2832,12 +2832,18 @@ const VOID_LIVE = (() => {
     players: [],
     spectators: [],
     bracket: null,
-    liveMatch: { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'في انتظار بدء البطولة...', status: 'waiting' },
+    liveMatch: { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'في انتظار بدء البطولة...', qIndex: -1, hits: [], endsAt: 0, status: 'waiting' },
     comments: [],
     bannedIds: [],
     chatLocked: false,
-    onUpdate: null
+    onUpdate: null,
+    timerId: null
   };
+
+  function pickQuestion() {
+    const qIndex = Math.floor(Math.random() * QS.length);
+    return { qIndex, question: QS[qIndex][0] };
+  }
 
   function syncPresence() {
     if (!state.net) return;
@@ -2906,6 +2912,25 @@ const VOID_LIVE = (() => {
     return { rounds, champion: finalM && finalM.winner ? finalM.winner : null, currentMatchId: nextM ? nextM.id : null };
   }
 
+  function createMatchLiveState(match) {
+    if (!match) {
+      return { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'انتهت البطولة', qIndex: -1, hits: [], endsAt: 0, status: 'finished' };
+    }
+    const q = pickQuestion();
+    return {
+      matchId: match.id,
+      p1: match.p1,
+      p2: match.p2,
+      s1: 0,
+      s2: 0,
+      question: q.question,
+      qIndex: q.qIndex,
+      hits: [],
+      endsAt: Date.now() + 45000,
+      status: 'playing'
+    };
+  }
+
   function recordMatchResult(matchId, s1, s2, explicitWinnerId = null) {
     if (!state.bracket) return;
     for (const round of state.bracket.rounds) {
@@ -2924,13 +2949,10 @@ const VOID_LIVE = (() => {
       const nextM = findNextMatch(state.bracket.rounds);
       state.bracket.currentMatchId = nextM ? nextM.id : null;
 
-      const updatedLive = nextM ? {
-        matchId: nextM.id, p1: nextM.p1, p2: nextM.p2, s1: 0, s2: 0,
-        question: QS[Math.floor(Math.random() * QS.length)][0], status: 'playing'
-      } : {
+      const updatedLive = nextM ? createMatchLiveState(nextM) : {
         matchId: m.id, p1: m.p1, p2: m.p2, s1: m.s1, s2: m.s2,
         question: state.bracket.champion ? `🏆 بطل VOID: ${state.bracket.champion.name}` : 'انتهت البطولة',
-        status: 'finished'
+        qIndex: -1, hits: [], endsAt: 0, status: 'finished'
       };
       broadcast('tourn_sync', { players: state.players, bracket: state.bracket, liveMatch: updatedLive });
       break;
@@ -2940,6 +2962,93 @@ const VOID_LIVE = (() => {
   function updateLiveMatch(partial) {
     state.liveMatch = { ...state.liveMatch, ...partial };
     broadcast('live_match_update', { liveMatch: state.liveMatch });
+  }
+
+  function nextQuestion() {
+    if (!state.me.isHost || state.liveMatch.status !== 'playing') return;
+    const q = pickQuestion();
+    updateLiveMatch({ question: q.question, qIndex: q.qIndex, hits: [], endsAt: Date.now() + 45000 });
+  }
+
+  function submitGuess(rawGuess) {
+    const clean = (rawGuess || '').trim().slice(0, 40);
+    const lm = state.liveMatch;
+    if (!clean || lm.status !== 'playing' || state.role !== 'player') return;
+    const isP1 = lm.p1 && lm.p1.id === state.me.id;
+    const isP2 = lm.p2 && lm.p2.id === state.me.id;
+    if (!isP1 && !isP2) {
+      toast('أنت لست طرفاً في المواجهة الحالية');
+      return;
+    }
+    if (state.me.isHost) {
+      handleMatchGuess(state.me.id, state.me.name, clean);
+    } else if (state.net) {
+      state.net.emit('tourn_guess', { userId: state.me.id, name: state.me.name, guess: clean });
+    }
+  }
+
+  function handleMatchGuess(userId, userName, guess) {
+    if (!state.me.isHost) return;
+    const lm = state.liveMatch;
+    if (!lm || lm.status !== 'playing' || lm.qIndex < 0 || lm.qIndex >= QS.length) return;
+    const isP1 = lm.p1 && lm.p1.id === userId;
+    const isP2 = lm.p2 && lm.p2.id === userId;
+    if (!isP1 && !isP2) return;
+
+    const k = matchAnswer(lm.qIndex, guess);
+    if (k === undefined) {
+      if (userId === state.me.id) { sfx.bad(); toast('إجابة غير موجودة ❌'); }
+      return;
+    }
+    const hits = Array.isArray(lm.hits) ? lm.hits.slice() : [];
+    if (hits.some(h => h.k === k)) {
+      if (userId === state.me.id) toast('تم كشف هذه الإجابة مسبقاً');
+      return;
+    }
+    const pts = N - k;
+    const answerText = nm(QS[lm.qIndex], k);
+    hits.push({ k, pts, text: answerText, by: userName, userId });
+    const s1 = (lm.s1 || 0) + (isP1 ? pts : 0);
+    const s2 = (lm.s2 || 0) + (isP2 ? pts : 0);
+
+    if (userId === state.me.id) {
+      sfx.ok();
+      floatPoints(`+${pts}`);
+    }
+
+    if (hits.length >= N) {
+      recordMatchResult(lm.matchId, s1, s2);
+    } else {
+      updateLiveMatch({ s1, s2, hits });
+    }
+  }
+
+  function startHostLoop() {
+    if (state.timerId) clearInterval(state.timerId);
+    state.timerId = setInterval(() => {
+      const lm = state.liveMatch;
+      if (state.me.isHost && lm && lm.status === 'playing' && lm.matchId) {
+        // محاكاة ذكية للخصم الآلي إذا كان أحد طرفي المواجهة بوت
+        const botSide = (lm.p1?.isBot ? lm.p1 : (lm.p2?.isBot ? lm.p2 : null));
+        if (botSide && Math.random() < 0.14 && lm.qIndex >= 0) {
+          const hits = Array.isArray(lm.hits) ? lm.hits : [];
+          const avail = [0, 1, 2, 3, 4, 5, 6, 7].filter(idx => !hits.some(h => h.k === idx));
+          if (avail.length) {
+            const pick = avail[Math.floor(Math.random() * avail.length)];
+            handleMatchGuess(botSide.id, botSide.name, nm(QS[lm.qIndex], pick));
+          }
+        }
+        // إنهاء المباراة تلقائياً عند انتهاء الوقت
+        if (lm.endsAt && Date.now() >= lm.endsAt) {
+          recordMatchResult(lm.matchId, lm.s1 || 0, lm.s2 || 0);
+        }
+      }
+      const timerEl = document.getElementById('tourn-timer');
+      if (timerEl && state.liveMatch?.endsAt && state.liveMatch.status === 'playing') {
+        const left = Math.max(0, Math.ceil((state.liveMatch.endsAt - Date.now()) / 1000));
+        timerEl.textContent = `⏱️ ${left}ث`;
+      }
+    }, 1000);
   }
 
   function sendComment(text) {
@@ -2982,6 +3091,9 @@ const VOID_LIVE = (() => {
           bannedIds: state.bannedIds, chatLocked: state.chatLocked
         });
       }
+    } else if (type === 'tourn_guess') {
+      if (state.me.isHost && data) handleMatchGuess(data.userId, data.name, data.guess);
+      return;
     } else if (type === 'tourn_sync') {
       if (Array.isArray(data.players) && data.players.length) state.players = data.players;
       if (data.bracket) state.bracket = data.bracket;
@@ -3024,29 +3136,29 @@ const VOID_LIVE = (() => {
     };
     const net = await fbJoin(state.code);
     state.net = net;
-    ['tourn_presence', 'tourn_sync', 'live_match_update', 'live_comment_add', 'live_mod_action'].forEach(ev => {
+    ['tourn_presence', 'tourn_guess', 'tourn_sync', 'live_match_update', 'live_comment_add', 'live_mod_action'].forEach(ev => {
       net.on(ev, m => { if (!m.isMe) applyEvent(ev, m.data); });
     });
     syncPresence();
+    startHostLoop();
     if (state.onUpdate) state.onUpdate(state);
   }
 
   function startAutoTournament() {
-    const pool = state.players.slice();
+    const pool = state.players.filter(p => !p.isBot);
     const bots = ['نجم_VOID', 'سراب', 'طيف', 'صقر'];
     for (let i = pool.length; i < 4; i++) {
-      pool.push({ id: 'bot_' + i + '_' + Math.random().toString(36).slice(2, 5), name: bots[i], avatar: i + 1, frame: 1, nameColor: 1, isHost: false, isMod: false });
+      pool.push({ id: 'bot_' + i + '_' + Math.random().toString(36).slice(2, 5), name: bots[i], avatar: i + 1, frame: 1, nameColor: 1, isHost: false, isMod: false, isBot: true });
     }
     const bracket = generateBracket(pool);
     const nextM = findNextMatch(bracket.rounds);
-    const liveMatch = nextM ? {
-      matchId: nextM.id, p1: nextM.p1, p2: nextM.p2, s1: 0, s2: 0,
-      question: QS[Math.floor(Math.random() * QS.length)][0], status: 'playing'
-    } : { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'انتهت البطولة', status: 'finished' };
+    const liveMatch = createMatchLiveState(nextM);
     broadcast('tourn_sync', { players: pool, bracket, liveMatch });
   }
 
   function leave() {
+    if (state.timerId) clearInterval(state.timerId);
+    state.timerId = null;
     if (state.net?.close) state.net.close();
     state.net = null;
     state.code = null;
@@ -3097,6 +3209,19 @@ const VOID_LIVE = (() => {
 
     const lm = state.liveMatch;
     const isBanned = state.bannedIds.includes(state.me.id);
+    const isMyTurn = lm.status === 'playing' && state.role === 'player' && ((lm.p1 && lm.p1.id === state.me.id) || (lm.p2 && lm.p2.id === state.me.id));
+    const hits = Array.isArray(lm.hits) ? lm.hits : [];
+    const timeLeft = (lm.endsAt && lm.status === 'playing') ? Math.max(0, Math.ceil((lm.endsAt - Date.now()) / 1000)) : 0;
+
+    const slotsHtml = lm.status === 'playing' ? `
+      <div class="sg" style="margin:10px 0">
+        ${Array.from({ length: N }, (_, idx) => {
+          const hit = hits.find(h => h.k === idx);
+          return hit
+            ? `<div class="slot f"><span><b>${idx + 1}.</b> ${esc(hit.text)} <small>— ${esc(hit.by)}</small></span><span class="pt">+${hit.pts}</span></div>`
+            : `<div class="slot"><span><b>${idx + 1}.</b> ؟؟؟</span><span class="pt">${N - idx}</span></div>`;
+        }).join('')}
+      </div>` : '';
 
     container.innerHTML = `
       <div class="tourn-wrap">
@@ -3113,20 +3238,25 @@ const VOID_LIVE = (() => {
 
         <div class="spec-banner">
           <div class="tourn-head">
-            <span class="tourn-pill live">● مشاهدة مباشرة</span>
+            <span class="tourn-pill live">● مشاهدة مباشرة ${lm.status === 'playing' ? `<b id="tourn-timer" style="margin-right:6px">⏱️ ${timeLeft}ث</b>` : ''}</span>
             <span class="tourn-pill">👁️ ${state.spectators.length} مشاهد · 🎮 ${state.players.length} لاعب</span>
           </div>
-          <div class="q" style="font-size:16px;text-align:center;margin:10px 0 6px">${esc(lm.question)}</div>
+          <div class="q" style="font-size:17px;text-align:center;margin:10px 0 6px">${esc(lm.question)}</div>
           <div class="spec-vs">
             <div class="spec-box"><div>${lm.p1 ? userBadge(lm.p1) : 'اللاعب 1'}</div><div class="sc">${lm.s1}</div></div>
             <div class="spec-mid">VS</div>
             <div class="spec-box"><div>${lm.p2 ? userBadge(lm.p2) : 'اللاعب 2'}</div><div class="sc">${lm.s2}</div></div>
           </div>
-          ${(canManage && lm.matchId) ? `
+          ${slotsHtml}
+          ${isMyTurn ? `
+            <form class="chat-form" style="margin-top:10px" onsubmit="event.preventDefault();const i=this.querySelector('input');VOID_LIVE.submitGuess(i.value);i.value='';">
+              <input type="text" placeholder="اكتب إجابتك في المواجهة الآن..." maxlength="40" autocomplete="off">
+              <button type="submit">إرسال الإجابة</button>
+            </form>` : (lm.status === 'playing' ? `<p class="s" style="margin:8px 0 0">أنت تشاهد هذه المواجهة مباشرة 👀</p>` : '')}
+          ${(canManage && lm.matchId && lm.status === 'playing') ? `
             <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
-              <button type="button" class="o mod-btn" style="flex:1" onclick="VOID_LIVE.updateLiveMatch({s1:VOID_LIVE.getState().liveMatch.s1+1})">+1 للأول</button>
-              <button type="button" class="o mod-btn" style="flex:1" onclick="VOID_LIVE.updateLiveMatch({s2:VOID_LIVE.getState().liveMatch.s2+1})">+1 للثاني</button>
-              <button type="button" class="ok mod-btn" onclick="VOID_LIVE.recordMatchResult(VOID_LIVE.getState().liveMatch.matchId,VOID_LIVE.getState().liveMatch.s1,VOID_LIVE.getState().liveMatch.s2)">حسم الجولة</button>
+              <button type="button" class="o mod-btn" style="flex:1" onclick="VOID_LIVE.nextQuestion()">سؤال جديد 🔄</button>
+              <button type="button" class="ok mod-btn" style="flex:1" onclick="VOID_LIVE.recordMatchResult(VOID_LIVE.getState().liveMatch.matchId,VOID_LIVE.getState().liveMatch.s1,VOID_LIVE.getState().liveMatch.s2)">حسم الجولة 🏆</button>
             </div>` : ''}
         </div>
 
@@ -3179,7 +3309,7 @@ const VOID_LIVE = (() => {
 
   return {
     joinRoom, setRole, startAutoTournament, recordMatchResult, updateLiveMatch,
-    sendComment, moderateComment, render, leave,
+    nextQuestion, submitGuess, sendComment, moderateComment, render, leave,
     onUpdate: fn => { state.onUpdate = fn; },
     getState: () => state
   };
