@@ -542,6 +542,41 @@ button.vs-row:last-child{border-bottom:0}button.vs-row:disabled{opacity:.45}
 .it .shop-hero-art{width:100%;height:150px;display:block;object-fit:contain;object-position:center bottom;margin:0 auto 8px;border-radius:9px;filter:drop-shadow(0 8px 10px #000b)}
 .av3d-wrap .portrait3d{width:100%;height:100%;display:block;object-fit:cover;object-position:center 14%;border-radius:50%;filter:saturate(1.08) contrast(1.04)}
 @media(max-width:380px){.it .shop-hero-art{height:132px}}
+/* ===== نظام البطولات والمشاهدة والتعليقات المباشرة في VOID ===== */
+.tourn-wrap{display:flex;flex-direction:column;gap:12px}
+.tourn-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tourn-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;background:#1b1929;border:1px solid var(--bd);color:var(--tx)}
+.tourn-pill.live{border-color:#2fbf7188;color:#2fbf71;background:#102522}
+.bracket-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+@media(min-width:440px){.bracket-grid.two-col{grid-template-columns:1fr 1fr}}
+.round-box{background:#0d1521;border:1px solid var(--bd);border-radius:14px;padding:11px}
+.round-title{font-size:12.5px;font-weight:800;color:var(--pri);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.match-card{background:#121b2b;border:1px solid #2b3a4f;border-radius:12px;padding:9px 10px;margin-bottom:8px}
+.match-card:last-child{margin-bottom:0}
+.match-card.active{border-color:var(--gold);box-shadow:0 0 0 1px #fbbf2444}
+.match-player{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;font-size:13.5px}
+.match-player:first-child{border-bottom:1px dashed #243246}
+.match-player.win b{color:var(--ok)}
+.match-player.out{opacity:.5}
+.match-score{font-weight:800;color:var(--gold);min-width:22px;text-align:center}
+.spec-banner{background:linear-gradient(135deg,#172336,#121927);border:1px solid #354963;border-radius:15px;padding:12px 14px;margin-bottom:12px}
+.spec-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center;margin-top:8px}
+.spec-box{background:#0b121d;border:1px solid #28374b;border-radius:12px;padding:9px 8px}
+.spec-box .sc{font-size:24px;font-weight:900;color:var(--pri);margin-top:3px}
+.spec-mid{font-size:13px;font-weight:900;color:var(--gold);padding:4px 8px;border-radius:999px;background:#262116;border:1px solid #6b582e}
+.chat-box{background:#0d1420;border:1px solid var(--bd);border-radius:15px;padding:12px;margin-top:12px}
+.chat-list{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-inline-end:2px;margin:10px 0}
+.chat-msg{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;background:#121c2c;border:1px solid #253449;border-radius:12px;padding:8px 10px}
+.chat-msg.muted{opacity:.48;border-style:dashed}
+.chat-body{min-width:0;flex:1}
+.chat-author{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;flex-wrap:wrap}
+.chat-text{font-size:13.5px;line-height:1.45;color:var(--tx);margin-top:3px;word-break:break-word}
+.mod-tag{font-size:10px;padding:1px 6px;border-radius:999px;background:#7c3aed33;color:#d8b4fe;border:1px solid #7c3aed66}
+.mod-actions{display:flex;gap:4px;flex:none}
+.mod-btn{width:auto!important;margin:0!important;padding:4px 8px!important;font-size:11px!important;border-radius:8px!important;box-shadow:none!important}
+.chat-form{display:flex;gap:8px;align-items:center}
+.chat-form input{margin:0!important;flex:1;padding:10px 12px!important;font-size:14px!important}
+.chat-form button{width:auto!important;margin:0!important;padding:10px 14px!important;font-size:13.5px!important}
 </style>
 </head>
 <body>
@@ -1757,6 +1792,7 @@ function home(err){
     ${vsRow('rd','مباراة عشوائية','تحدَّ لاعبين حقيقيين الآن',off)}
     ${vsRow('cr','غرفة خاصة','أنشئ غرفة وادعُ أصدقاءك',off)}
     ${vsRow('jn-row','انضمام بكود','ادخل غرفة صديقك',off)}
+    ${vsRow('tourn-btn','البطولات والمشاهدة المباشرة','بطولة تلقائية · بث مباشر · تعليقات',off)}
   </div>
   <div class="vs-card">
     ${vsRow('missions-btn','مهام اليوم','أنجز المهام واجمع المكافآت')}
@@ -1772,6 +1808,7 @@ function home(err){
   $('#rd').onclick=quick;
   $('#cr').onclick=()=>enter(code(),true);
   $('#jn-row').onclick=joinModal;
+  $('#tourn-btn').onclick=openTournamentModal;
   $('#missions-btn').onclick=showMissions;
   $('#records-btn').onclick=showLocalRecords;
   $('#profile-btn').onclick=showProfile;
@@ -2769,7 +2806,7 @@ function finish(){
     }else if(S.phase==='result'&&SS){
       if(SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed)home();
       else levels();
-    }else if(['lobby','q','r'].includes(S.phase)){
+    }else if(S.phase==='tournament'){VOID_LIVE.leave();home();}else if(['lobby','q','r'].includes(S.phase)){
       if(typeof leaveRoom==='function')leaveRoom();
       else home();
     }else if(S.phase==='shop'||S.phase==='lv'){
@@ -2785,6 +2822,399 @@ function finish(){
 window.addEventListener('offline',()=>{if(S.phase==='home')home()});
 window.addEventListener('online',()=>{if(S.phase==='home'){if(typeof firebase==='undefined')location.reload();else home()}});
 let tp=0;$('#hr').onclick=()=>{if(++tp>=5){tp=0;unlock()}};
+/* ===== نظام البطولات التلقائية والمشاهدة المباشرة والتعليقات مع الإشراف ===== */
+const VOID_LIVE = (() => {
+  const state = {
+    code: null,
+    net: null,
+    me: { id: 'u_' + Math.random().toString(36).slice(2, 9), name: 'لاعب VOID', avatar: 0, frame: 0, nameColor: 0, isHost: false, isMod: false },
+    role: 'player',
+    players: [],
+    spectators: [],
+    bracket: null,
+    liveMatch: { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'في انتظار بدء البطولة...', status: 'waiting' },
+    comments: [],
+    bannedIds: [],
+    chatLocked: false,
+    onUpdate: null
+  };
+
+  function syncPresence() {
+    if (!state.net) return;
+    state.net.emit('tourn_presence', { user: { ...state.me }, role: state.role });
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function propagateWinners(rounds) {
+    for (let r = 0; r < rounds.length - 1; r++) {
+      rounds[r].forEach(m => {
+        if (!m.winner) return;
+        const nextM = rounds[r + 1][Math.floor(m.matchIndex / 2)];
+        if (!nextM) return;
+        if (m.matchIndex % 2 === 0) nextM.p1 = m.winner;
+        else nextM.p2 = m.winner;
+        if (nextM.p1 && nextM.p2 && nextM.status === 'waiting') nextM.status = 'pending';
+      });
+    }
+  }
+
+  function findNextMatch(rounds) {
+    for (let r = 0; r < rounds.length; r++) {
+      for (const m of rounds[r]) {
+        if (m.p1 && m.p2 && !m.winner) return m;
+      }
+    }
+    return null;
+  }
+
+  function generateBracket(rawPlayers) {
+    const shuffled = shuffle((rawPlayers || []).filter(p => p && p.id));
+    const size = shuffled.length <= 2 ? 2 : shuffled.length <= 4 ? 4 : 8;
+    const slots = Array.from({ length: size }, (_, i) => shuffled[i] || null);
+    const rounds = [];
+    const r0 = [];
+    for (let i = 0; i < size; i += 2) {
+      const p1 = slots[i], p2 = slots[i + 1];
+      let winner = null, status = 'pending';
+      if (p1 && !p2) { winner = p1; status = 'bye'; }
+      else if (!p1 && p2) { winner = p2; status = 'bye'; }
+      else if (!p1 && !p2) { status = 'empty'; }
+      r0.push({ id: `r0_m${i / 2}`, roundIndex: 0, matchIndex: i / 2, p1, p2, s1: 0, s2: 0, winner, status });
+    }
+    rounds.push(r0);
+
+    let prev = r0.length, rIdx = 1;
+    while (prev > 1) {
+      const cnt = Math.ceil(prev / 2);
+      rounds.push(Array.from({ length: cnt }, (_, m) => ({
+        id: `r${rIdx}_m${m}`, roundIndex: rIdx, matchIndex: m, p1: null, p2: null, s1: 0, s2: 0, winner: null, status: 'waiting'
+      })));
+      prev = cnt;
+      rIdx++;
+    }
+    propagateWinners(rounds);
+    const finalM = rounds[rounds.length - 1][0];
+    const nextM = findNextMatch(rounds);
+    return { rounds, champion: finalM && finalM.winner ? finalM.winner : null, currentMatchId: nextM ? nextM.id : null };
+  }
+
+  function recordMatchResult(matchId, s1, s2, explicitWinnerId = null) {
+    if (!state.bracket) return;
+    for (const round of state.bracket.rounds) {
+      const m = round.find(item => item.id === matchId);
+      if (!m) continue;
+      m.s1 = Math.max(0, +s1 || 0);
+      m.s2 = Math.max(0, +s2 || 0);
+      if (explicitWinnerId === m.p1?.id) m.winner = m.p1;
+      else if (explicitWinnerId === m.p2?.id) m.winner = m.p2;
+      else m.winner = m.s2 > m.s1 ? m.p2 : m.p1;
+      m.status = 'finished';
+
+      propagateWinners(state.bracket.rounds);
+      const finalM = state.bracket.rounds[state.bracket.rounds.length - 1][0];
+      state.bracket.champion = finalM && finalM.winner ? finalM.winner : null;
+      const nextM = findNextMatch(state.bracket.rounds);
+      state.bracket.currentMatchId = nextM ? nextM.id : null;
+
+      const updatedLive = nextM ? {
+        matchId: nextM.id, p1: nextM.p1, p2: nextM.p2, s1: 0, s2: 0,
+        question: QS[Math.floor(Math.random() * QS.length)][0], status: 'playing'
+      } : {
+        matchId: m.id, p1: m.p1, p2: m.p2, s1: m.s1, s2: m.s2,
+        question: state.bracket.champion ? `🏆 بطل VOID: ${state.bracket.champion.name}` : 'انتهت البطولة',
+        status: 'finished'
+      };
+      broadcast('tourn_sync', { players: state.players, bracket: state.bracket, liveMatch: updatedLive });
+      break;
+    }
+  }
+
+  function updateLiveMatch(partial) {
+    state.liveMatch = { ...state.liveMatch, ...partial };
+    broadcast('live_match_update', { liveMatch: state.liveMatch });
+  }
+
+  function sendComment(text) {
+    const clean = (text || '').trim().slice(0, 220);
+    if (!clean || (state.chatLocked && !state.me.isMod) || state.bannedIds.includes(state.me.id)) return;
+    broadcast('live_comment_add', {
+      comment: {
+        id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        userId: state.me.id, name: state.me.name, avatar: state.me.avatar,
+        frame: state.me.frame, nameColor: state.me.nameColor, isMod: state.me.isMod,
+        text: clean, deleted: false
+      }
+    });
+  }
+
+  function moderateComment(commentId, action) {
+    if (!state.me.isMod) return;
+    const target = state.comments.find(c => c.id === commentId);
+    if (action === 'delete') broadcast('live_mod_action', { action: 'delete', commentId });
+    else if (action === 'ban' && target) broadcast('live_mod_action', { action: 'ban', targetUserId: target.userId });
+    else if (action === 'unban' && target) broadcast('live_mod_action', { action: 'unban', targetUserId: target.userId });
+    else if (action === 'toggle_lock') broadcast('live_mod_action', { action: 'toggle_lock', locked: !state.chatLocked });
+  }
+
+  function broadcast(type, data) {
+    applyEvent(type, data);
+    if (state.net) state.net.emit(type, data);
+  }
+
+  function applyEvent(type, data) {
+    if (type === 'tourn_presence') {
+      const { user, role } = data || {};
+      if (!user?.id) return;
+      state.players = state.players.filter(p => p.id !== user.id);
+      state.spectators = state.spectators.filter(s => s.id !== user.id);
+      (role === 'spectator' ? state.spectators : state.players).push(user);
+      if (state.me.isHost && state.net) {
+        state.net.emit('tourn_sync', {
+          players: state.players, bracket: state.bracket, liveMatch: state.liveMatch,
+          bannedIds: state.bannedIds, chatLocked: state.chatLocked
+        });
+      }
+    } else if (type === 'tourn_sync') {
+      if (Array.isArray(data.players) && data.players.length) state.players = data.players;
+      if (data.bracket) state.bracket = data.bracket;
+      if (data.liveMatch) state.liveMatch = data.liveMatch;
+      if (Array.isArray(data.bannedIds)) state.bannedIds = data.bannedIds;
+      if (typeof data.chatLocked === 'boolean') state.chatLocked = data.chatLocked;
+    } else if (type === 'live_match_update' && data.liveMatch) {
+      state.liveMatch = data.liveMatch;
+    } else if (type === 'live_comment_add' && data.comment) {
+      if (!state.comments.some(c => c.id === data.comment.id)) {
+        state.comments = [...state.comments.slice(-79), data.comment];
+      }
+    } else if (type === 'live_mod_action') {
+      if (data.action === 'delete') {
+        state.comments = state.comments.map(c => c.id === data.commentId ? { ...c, deleted: true, text: 'تم حذف التعليق بواسطة الإشراف' } : c);
+      } else if (data.action === 'ban' && data.targetUserId) {
+        if (!state.bannedIds.includes(data.targetUserId)) state.bannedIds.push(data.targetUserId);
+        state.comments = state.comments.map(c => c.userId === data.targetUserId ? { ...c, deleted: true, text: 'تم إيقاف المشارك بواسطة الإشراف' } : c);
+      } else if (data.action === 'unban') {
+        state.bannedIds = state.bannedIds.filter(id => id !== data.targetUserId);
+      } else if (data.action === 'toggle_lock') {
+        state.chatLocked = !!data.locked;
+      }
+    }
+    if (typeof state.onUpdate === 'function') state.onUpdate(state);
+  }
+
+  async function joinRoom(roomCode, role = 'player', isHost = false) {
+    if (state.net?.close) state.net.close();
+    state.code = roomCode.toLowerCase();
+    state.role = role;
+    state.me = {
+      id: (typeof CU !== 'undefined' && CU?.uid) ? CU.uid : state.me.id,
+      name: P.n || 'لاعب VOID',
+      avatar: P.a || 0,
+      frame: P.f || 0,
+      nameColor: P.c || 0,
+      isHost: !!isHost,
+      isMod: !!isHost
+    };
+    const net = await fbJoin(state.code);
+    state.net = net;
+    ['tourn_presence', 'tourn_sync', 'live_match_update', 'live_comment_add', 'live_mod_action'].forEach(ev => {
+      net.on(ev, m => { if (!m.isMe) applyEvent(ev, m.data); });
+    });
+    syncPresence();
+    if (state.onUpdate) state.onUpdate(state);
+  }
+
+  function startAutoTournament() {
+    const pool = state.players.slice();
+    const bots = ['نجم_VOID', 'سراب', 'طيف', 'صقر'];
+    for (let i = pool.length; i < 4; i++) {
+      pool.push({ id: 'bot_' + i + '_' + Math.random().toString(36).slice(2, 5), name: bots[i], avatar: i + 1, frame: 1, nameColor: 1, isHost: false, isMod: false });
+    }
+    const bracket = generateBracket(pool);
+    const nextM = findNextMatch(bracket.rounds);
+    const liveMatch = nextM ? {
+      matchId: nextM.id, p1: nextM.p1, p2: nextM.p2, s1: 0, s2: 0,
+      question: QS[Math.floor(Math.random() * QS.length)][0], status: 'playing'
+    } : { matchId: null, p1: null, p2: null, s1: 0, s2: 0, question: 'انتهت البطولة', status: 'finished' };
+    broadcast('tourn_sync', { players: pool, bracket, liveMatch });
+  }
+
+  function leave() {
+    if (state.net?.close) state.net.close();
+    state.net = null;
+    state.code = null;
+  }
+
+  function getRoundLabel(idx, total) {
+    const d = total - 1 - idx;
+    return d === 0 ? 'النهائي 🏆' : d === 1 ? 'نصف النهائي 🔥' : 'ربع النهائي ⚡';
+  }
+
+  function render(container) {
+    if (!container) return;
+    const canManage = state.me.isHost || state.me.isMod;
+    const rCount = state.bracket?.rounds?.length || 0;
+    const userBadge = u => `${avh(u.avatar || 0, u.frame || 0, false)} <span class="nc${u.nameColor || 0}">${esc(u.name)}</span>${u.isMod ? ' <span class="mod-tag">إشراف</span>' : ''}`;
+
+    const bracketHtml = state.bracket ? `
+      <div class="card">
+        <div class="tourn-head">
+          <h3>🏆 شجرة البطولة التلقائية</h3>
+          <span class="tourn-pill">${state.bracket.champion ? 'البطل: ' + esc(state.bracket.champion.name) : 'جارية'}</span>
+        </div>
+        <div class="bracket-grid ${rCount > 1 ? 'two-col' : ''}">
+          ${state.bracket.rounds.map((matches, rIdx) => `
+            <div class="round-box">
+              <div class="round-title"><span>${getRoundLabel(rIdx, rCount)}</span><small>${matches.length} مباراة</small></div>
+              ${matches.map(m => `
+                <div class="match-card ${state.bracket.currentMatchId === m.id ? 'active' : ''}">
+                  <div class="match-player ${m.winner && m.p1 && m.winner.id === m.p1.id ? 'win' : (m.winner ? 'out' : '')}">
+                    <div style="display:flex;align-items:center;gap:6px">${m.p1 ? userBadge(m.p1) : '<span style="color:var(--mut)">بانتظار المتأهل...</span>'}</div>
+                    <span class="match-score">${m.p1 ? m.s1 : '-'}</span>
+                  </div>
+                  <div class="match-player ${m.winner && m.p2 && m.winner.id === m.p2.id ? 'win' : (m.winner ? 'out' : '')}">
+                    <div style="display:flex;align-items:center;gap:6px">${m.p2 ? userBadge(m.p2) : '<span style="color:var(--mut)">بانتظار المتأهل...</span>'}</div>
+                    <span class="match-score">${m.p2 ? m.s2 : '-'}</span>
+                  </div>
+                  ${(canManage && m.p1 && m.p2 && !m.winner) ? `
+                    <div style="display:flex;gap:6px;margin-top:8px">
+                      <button type="button" class="ok mod-btn" style="flex:1" onclick="VOID_LIVE.recordMatchResult('${m.id}',${m.s1 + 1},${m.s2},'${m.p1.id}')">فوز ${esc(m.p1.name)}</button>
+                      <button type="button" class="ok mod-btn" style="flex:1" onclick="VOID_LIVE.recordMatchResult('${m.id}',${m.s1},${m.s2 + 1},'${m.p2.id}')">فوز ${esc(m.p2.name)}</button>
+                    </div>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    const lm = state.liveMatch;
+    const isBanned = state.bannedIds.includes(state.me.id);
+
+    container.innerHTML = `
+      <div class="tourn-wrap">
+        <div class="card">
+          <div class="tourn-head">
+            <div><h2>⚔️ بطولة VOID</h2><small style="color:var(--mut)">كود الغرفة: <b style="color:var(--pri)">${esc(state.code)}</b></small></div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button type="button" class="o mod-btn" onclick="VOID_LIVE.setRole('player')">لاعب</button>
+              <button type="button" class="o mod-btn" onclick="VOID_LIVE.setRole('spectator')">مشاهد</button>
+              ${canManage ? `<button type="button" class="mod-btn" onclick="VOID_LIVE.startAutoTournament()">توزيع تلقائي</button>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <div class="spec-banner">
+          <div class="tourn-head">
+            <span class="tourn-pill live">● مشاهدة مباشرة</span>
+            <span class="tourn-pill">👁️ ${state.spectators.length} مشاهد · 🎮 ${state.players.length} لاعب</span>
+          </div>
+          <div class="q" style="font-size:16px;text-align:center;margin:10px 0 6px">${esc(lm.question)}</div>
+          <div class="spec-vs">
+            <div class="spec-box"><div>${lm.p1 ? userBadge(lm.p1) : 'اللاعب 1'}</div><div class="sc">${lm.s1}</div></div>
+            <div class="spec-mid">VS</div>
+            <div class="spec-box"><div>${lm.p2 ? userBadge(lm.p2) : 'اللاعب 2'}</div><div class="sc">${lm.s2}</div></div>
+          </div>
+          ${(canManage && lm.matchId) ? `
+            <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+              <button type="button" class="o mod-btn" style="flex:1" onclick="VOID_LIVE.updateLiveMatch({s1:VOID_LIVE.getState().liveMatch.s1+1})">+1 للأول</button>
+              <button type="button" class="o mod-btn" style="flex:1" onclick="VOID_LIVE.updateLiveMatch({s2:VOID_LIVE.getState().liveMatch.s2+1})">+1 للثاني</button>
+              <button type="button" class="ok mod-btn" onclick="VOID_LIVE.recordMatchResult(VOID_LIVE.getState().liveMatch.matchId,VOID_LIVE.getState().liveMatch.s1,VOID_LIVE.getState().liveMatch.s2)">حسم الجولة</button>
+            </div>` : ''}
+        </div>
+
+        ${bracketHtml}
+
+        <div class="chat-box">
+          <div class="tourn-head">
+            <h3>💬 التعليقات المباشرة</h3>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span class="tourn-pill">${state.chatLocked ? '🔒 مقفلة' : '🔓 مفتوحة'}</span>
+              ${state.me.isMod ? `<button type="button" class="o mod-btn" onclick="VOID_LIVE.moderateComment(null,'toggle_lock')">${state.chatLocked ? 'فتح' : 'قفل'}</button>` : ''}
+            </div>
+          </div>
+          <div class="chat-list" id="void-chat-list">
+            ${state.comments.length ? state.comments.map(c => {
+              const muted = state.bannedIds.includes(c.userId);
+              return `
+                <div class="chat-msg ${(c.deleted || muted) ? 'muted' : ''}">
+                  <div class="chat-body">
+                    <div class="chat-author">${userBadge(c)}</div>
+                    <div class="chat-text">${esc(c.text)}</div>
+                  </div>
+                  ${state.me.isMod ? `
+                    <div class="mod-actions">
+                      ${!c.deleted ? `<button type="button" class="bad mod-btn" onclick="VOID_LIVE.moderateComment('${c.id}','delete')">حذف</button>` : ''}
+                      ${!muted
+                        ? `<button type="button" class="o mod-btn" onclick="VOID_LIVE.moderateComment('${c.id}','ban')">كتم</button>`
+                        : `<button type="button" class="ok mod-btn" onclick="VOID_LIVE.moderateComment('${c.id}','unban')">فك</button>`}
+                    </div>` : ''}
+                </div>`;
+            }).join('') : `<p class="s" style="margin:10px 0">لا توجد تعليقات بعد. اكتب أول تعليق!</p>`}
+          </div>
+          <form class="chat-form" onsubmit="event.preventDefault();const i=this.querySelector('input');VOID_LIVE.sendComment(i.value);i.value='';">
+            <input type="text" placeholder="${isBanned ? 'تم إيقافك من التعليق' : (state.chatLocked && !state.me.isMod ? 'المحادثة مقفلة' : 'اكتب تعليقك المباشر...')}" ${(isBanned || (state.chatLocked && !state.me.isMod)) ? 'disabled' : ''}>
+            <button type="submit" ${(isBanned || (state.chatLocked && !state.me.isMod)) ? 'disabled' : ''}>إرسال</button>
+          </form>
+        </div>
+
+        <button type="button" class="o" onclick="VOID_LIVE.leave();home()">مغادرة البطولة</button>
+      </div>`;
+    const list = container.querySelector('#void-chat-list');
+    if (list) list.scrollTop = list.scrollHeight;
+  }
+
+  function setRole(role) {
+    state.role = role === 'spectator' ? 'spectator' : 'player';
+    syncPresence();
+    if (state.onUpdate) state.onUpdate(state);
+  }
+
+  return {
+    joinRoom, setRole, startAutoTournament, recordMatchResult, updateLiveMatch,
+    sendComment, moderateComment, render, leave,
+    onUpdate: fn => { state.onUpdate = fn; },
+    getState: () => state
+  };
+})();
+
+function openTournamentModal() {
+  const m = mkModal(`
+    <h3>🏆 البطولات والمشاهدة المباشرة</h3>
+    <button id="t-new">إنشاء بطولة جديدة (مضيف)</button>
+    <input id="t-code" placeholder="كود البطولة للانضمام أو المشاهدة" maxlength="8" style="direction:ltr;text-align:center;margin-top:10px">
+    <div style="display:flex;gap:8px">
+      <button id="t-play" style="flex:1">انضمام كلاعب</button>
+      <button class="o" id="t-watch" style="flex:1">مشاهدة مباشرة 👁️</button>
+    </div>
+    <button class="o" id="t-close">إلغاء</button>
+  `);
+  const launch = async (c, role, isHost) => {
+    m.remove();
+    S.phase = 'tournament';
+    VOID_LIVE.onUpdate(() => VOID_LIVE.render(app));
+    await VOID_LIVE.joinRoom(c, role, isHost);
+    if (isHost) VOID_LIVE.startAutoTournament();
+  };
+  m.querySelector('#t-close').onclick = () => m.remove();
+  m.querySelector('#t-new').onclick = () => launch(code(), 'player', true);
+  m.querySelector('#t-play').onclick = () => {
+    const c = m.querySelector('#t-code').value.trim().toLowerCase();
+    if (c) launch(c, 'player', false);
+  };
+  m.querySelector('#t-watch').onclick = () => {
+    const c = m.querySelector('#t-code').value.trim().toLowerCase();
+    if (c) launch(c, 'spectator', false);
+  };
+}
+
 home();
 presence();
 authInit();
