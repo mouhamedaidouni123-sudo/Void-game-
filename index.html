@@ -184,15 +184,33 @@ button.bad{background:linear-gradient(135deg,#dc2626,var(--bad));color:#fff;bord
 .chips .chip{white-space:nowrap;padding:4px 10px}
 .dock{
   position:sticky;
-  bottom:0;
-  background:linear-gradient(180deg,transparent,var(--bg) 22%);
-  padding:8px 0 6px;
+  bottom:8px;
+  background:linear-gradient(180deg,rgba(15,23,42,.25),var(--bg) 30%);
+  backdrop-filter:blur(8px);
+  padding:10px;
+  border:1px solid var(--bd,rgba(255,255,255,.12));
+  border-radius:14px;
   display:flex;
+  align-items:center;
   gap:8px;
-  z-index:10
+  z-index:10;
+  box-shadow:0 8px 24px rgba(0,0,0,.35)
 }
-.dock input{margin:0;flex:1}
-.dock button{width:auto;margin:0;padding:0 20px}
+.dock input{
+  margin:0;
+  flex:1;
+  min-height:42px;
+  padding:10px 14px;
+  border-radius:10px
+}
+.dock button{
+  width:auto;
+  margin:0;
+  padding:0 20px;
+  min-height:42px;
+  border-radius:10px;
+  font-weight:700
+}
 .chips2{display:flex;flex-wrap:wrap;gap:7px}
 .onl{text-align:center;color:var(--mut);font-size:13px;margin:-4px 0 12px}
 
