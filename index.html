@@ -271,7 +271,12 @@ button.bad{background:linear-gradient(135deg,#dc2626,var(--bad));color:#fff;bord
 .vb{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#c026d3,#6366f1);color:#fff;font-size:10px;font-weight:700;margin-inline-start:5px;box-shadow:0 0 8px #a855f7;vertical-align:middle}
 
 /* Shop & Grids */
-.gr3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gr3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.it .shop-hero-art{display:block;width:100%;height:142px;margin:0 auto 7px;object-fit:contain;filter:drop-shadow(0 7px 7px #0009)}
+.it{min-height:220px;padding:8px 5px 10px;overflow:hidden;background:radial-gradient(ellipse at 50% 28%,#27344d 0,#111b2a 58%,#0b111b 100%);border-color:#34445c}
+.it.sel{background:radial-gradient(ellipse at 50% 28%,#45366c 0,#1d2037 62%,#101522 100%)}
+.it>div:not(:first-child){line-height:1.35}
+@media(max-width:380px){.it .shop-hero-art{height:126px}.it{min-height:205px}}
 .it{background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;font-size:13px;transition:transform .12s,border-color .2s}
 .it:active{transform:scale(.96)}
 .it .av{margin:0 auto 8px;width:54px;height:54px;font-size:28px}
@@ -1043,6 +1048,28 @@ function avatar3d(a){
     <path d="M15 100Q22 78 40 76L50 85 60 76Q80 79 86 100" fill="none" stroke="#fff" stroke-opacity=".2" stroke-width="1.5"/>
     <path d="M50 82L45 91 50 100 55 91Z" fill="${accent}" opacity=".9"/>
     <ellipse cx="50" cy="50" rx="27" ry="42" fill="url(#ah${a})" pointer-events="none"/>
+  </svg>`;
+}
+function characterShopArt(index){
+  const v=AV3D[((index|0)%AV3D.length+AV3D.length)%AV3D.length],skin=v[0],hair=v[1],cloth=v[2],accent=v[3],id='hero'+index;
+  const looks=[
+    ['#172c46','cape'],['#34234f','coat'],['#164452','tech'],['#473047','robe'],['#26394a','armor'],
+    ['#4b3028','scarf'],['#26354a','hood'],['#394052','pilot'],['#25423e','ranger'],['#482d37','royal']
+  ];
+  const [outer,kind]=looks[index%looks.length];
+  const hairShape=index%4===0?'M29 48Q18 15 48 12Q78 10 73 47L66 35Q54 27 43 34L31 48Z':index%4===1?'M27 46Q20 11 49 10Q80 10 76 47L69 31 58 38 48 25 37 39Z':index%4===2?'M25 46Q18 17 42 12Q72 5 78 39L69 35Q55 19 35 40Z':'M27 46Q22 9 51 11Q82 11 75 48L66 33 57 28 47 39 37 31Z';
+  let outfit=kind==='cape'?`<path d="M27 76L12 145 29 137 50 151 71 137 88 145 73 76 62 70 50 83 38 70Z" fill="${outer}"/><path d="M38 76L50 87 62 76 70 145 50 137 30 145Z" fill="${accent}"/>`:kind==='tech'?`<path d="M29 76L13 143 35 137 50 147 65 137 87 143 71 76 61 70 50 82 39 70Z" fill="${outer}"/><path d="M34 84L50 96 66 84 61 137 50 143 39 137Z" fill="${accent}"/><path d="M31 102H69M29 119H71" stroke="#dbeafe" stroke-opacity=".5" stroke-width="2"/>`:kind==='robe'?`<path d="M30 76L14 146 50 153 86 146 70 76 61 69 50 83 39 69Z" fill="${outer}"/><path d="M50 84L39 77 33 143 50 149 67 143 61 77Z" fill="${accent}"/>`:`<path d="M28 77L12 144 34 138 50 150 66 138 88 144 72 77 61 70 50 83 39 70Z" fill="${outer}"/><path d="M38 78L50 88 62 78 68 139 50 145 32 139Z" fill="${accent}"/><path d="M28 91L72 91M24 112L76 112" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>`;
+  return `<svg class="shop-hero-art" viewBox="0 0 100 166" role="img" aria-label="شخصية أنمي ${index+1}">
+  <defs><linearGradient id="${id}bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${accent}" stop-opacity=".45"/><stop offset="1" stop-color="${outer}" stop-opacity=".1"/></linearGradient><linearGradient id="${id}skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe6cc"/><stop offset="1" stop-color="${skin}"/></linearGradient><linearGradient id="${id}cloth" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${accent}"/><stop offset="1" stop-color="${cloth}"/></linearGradient></defs>
+  <ellipse cx="50" cy="158" rx="30" ry="5" fill="#02050b" opacity=".7"/><path d="M8 160Q13 123 29 112L38 105H62L72 112Q88 123 92 160Z" fill="url(#${id}bg)"/>
+  <path d="M37 128L31 160H44L50 136 56 160H69L63 128Z" fill="#101827"/><path d="M29 151H45L44 160H27ZM55 151H71L73 160H56Z" fill="#080d17"/>
+  ${outfit}
+  <path d="M38 67H62V88Q50 99 38 88Z" fill="url(#${id}skin)"/><path d="M25 43Q25 18 50 17Q75 18 75 43L71 68Q65 81 50 82Q35 81 29 68Z" fill="url(#${id}skin)"/>
+  <path d="M24 47Q18 16 49 12Q81 11 77 48L70 35Q57 24 43 30L29 49Z" fill="${hair}"/><path d="M27 39Q40 17 59 25L49 42 37 39 30 52Z" fill="${accent}" opacity=".8"/>
+  <path d="M33 49Q40 44 46 49M55 49Q62 44 68 49" stroke="${hair}" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M35 55Q40 50 45 55Q40 61 35 55ZM55 55Q60 50 65 55Q60 61 55 55Z" fill="#f8fbff"/><circle cx="40" cy="55" r="2.5" fill="#243e70"/><circle cx="60" cy="55" r="2.5" fill="#243e70"/><circle cx="41" cy="54" r=".9" fill="#fff"/><circle cx="61" cy="54" r=".9" fill="#fff"/>
+  <path d="M48 62L46 67 51 68M44 73Q50 77 56 72" fill="none" stroke="#9b5960" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M38 83L50 94 62 83" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><path d="M50 94L46 106 50 113 54 106Z" fill="#f8e6b5"/><path d="M20 116L31 107M80 116L69 107" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+  <path d="M29 24Q39 6 60 14" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none"/>
   </svg>`;
 }
 const avh=(a,f,big,photo)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${photo?`<img src="${photo}" alt="صورة اللاعب" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:avatar3d(a)}</i></span>`;
@@ -2375,7 +2402,7 @@ function shop(tab){
     const items=L.map((it,i)=>{
       const ow=(tab==='f'&&i===11)||(tab==='c'&&i===14);if(ow&&!O)return '';
       const own=P.own[tab].includes(i)||(O&&ow),cur=P[tab]===i,price=it[pi];
-      const pre=tab==='c'?`<span class="nc${i}" style="font-size:16px">${esc(P.n)}</span>`:avh(tab==='a'?i:P.a,tab==='f'?i:P.f, false, tab==='a'&&i===P.a?P.photo:null);
+      const pre=tab==='c'?`<span class="nc${i}" style="font-size:16px">${esc(P.n)}</span>`:tab==='a'?characterShopArt(i):avh(P.a,i,false,null);
       return `<div class="it ${cur?'sel':''}" data-i="${i}">${pre}<div>${it[tab==='a'?3:0]}</div><b>${cur?'✔ مستخدم':own?'اختيار':price===0?'مجاني':'🪙 '+price}</b></div>`;
     }).join('');
     content=`${tab==='a'?`<div class="card" style="margin-bottom:12px;text-align:center">
