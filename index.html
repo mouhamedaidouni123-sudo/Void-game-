@@ -644,7 +644,7 @@ const BANK={
 اذكر شيئاً تجده في الحمام|صابون,شامبو,منشفة/فوطة,فرشاة اسنان,معجون,مرآة,دش,مشط
 اذكر فصلاً أو حالة طقس|صيف,شتاء,ربيع,خريف,مطر,ثلج,رياح,شمس
 اذكر شيئاً مصنوعاً من الخشب|طاولة,كرسي,باب,سرير,خزانة/دولاب,قلم رصاص,ورق,سفينة
-اذكر شيئاً تجده في الشارع|سيارة,عمود انارة,شجرة,رصيف,اشارة مرور,محل,رصيف,حافلة
+اذكر شيئاً تجده في الشارع|سيارة,عمود انارة,شجرة,رصيف,اشارة مرور,محل,ممر مشاة,حافلة
 اذكر لعبة أطفال قديمة أو شعبية|غميضة/الاستغماية,كرة القدم,القفز على الحبل,الحجلة,شد الحبل,السيارات,الدمية/العروسة,البازل
 اذكر شيئاً تجده في غرفة النوم|سرير,وسادة/مخدة,بطانية,خزانة/دولاب,مرآة,مصباح/اباجورة,ساعة,سجادة
 اذكر أداة مكتبية|قلم,دفتر,مقص,مسطرة,دباسة,ممحاة/استيكة,صمغ/لاصق,ملاحظات لاصقة
@@ -950,7 +950,7 @@ const BANK={
 اذكر لعبة من نينتندو|سوبر ماريو,زيلدا,بوكيمون,كيربي,ميترويد,أنيمال كروسينغ,سماش بروس,دونكي كونغ
 اذكر لعبة كرة قدم إلكترونية|EA Sports FC,eFootball,Football Manager,روكيت ليغ,فيفا موبايل,DLS,بيس,سوبر ميني فوتبول
 اذكر شيئاً يطوّر اللاعب في اللعبة|المهارة,السرعة,الدقة,التركيز,التخطيط,التعاون,سرعة الاستجابة,حل الألغاز
-اذكر لعبة عالم مفتوح|GTA,ريد ديد ريدمبشن,ماينكرافت,زيلدا,سايبربانك,سكاي ريم,جنشن إمباكت,هorizon
+اذكر لعبة عالم مفتوح|GTA,ريد ديد ريدمبشن,ماينكرافت,زيلدا,سايبربانك,سكاي ريم,جنشن إمباكت,Horizon
 اذكر لعبة هاتف|كاندي كراش,Clash of Clans,Subway Surfers,فري فاير,ببجي موبايل,Among Us,Temple Run,بروول ستارز
 اذكر شيئاً في إعدادات اللعبة|الصوت,الرسومات,اللغة,التحكم,الحساسية,السطوع,الترجمة,إمكانية الوصول`,
   "أسئلة ممتعة":`اذكر شيئاً قد تجده في حقيبة المدرسة|قلم,دفتر,كتاب,مسطرة,ممحاة,مقلمة,قارورة ماء,سماعات
@@ -1051,24 +1051,27 @@ function characterShopArt(index){
 }
 const avh=(a,f,big,photo)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${photo?`<img src="${photo}" alt="صورة اللاعب" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:avatar3d(a)}</i></span>`;
 
-let P={n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},blocked:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',history:[]};
+let P={v:3,n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},unlocked:{1:true},blocked:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',daily:'',history:[],missions:null};
 try{
   const x=JSON.parse(localStorage.getItem('vp')||'null');
-  if(x&&x.own)P=Object.assign(P,x);
+  if(x&&typeof x==='object'){
+    P=Object.assign(P,x);
+    if(x.own)P.own=Object.assign({a:[0,1,2,3],f:[0],c:[0]},x.own);
+  }
 }catch(e){}
-if(P.v!==3){P.a=P.f=P.c=0;P.own={a:[0,1,2,3],f:[0],c:[0]};P.v=3}
+P.v=3;
 P.pw=Object.assign({hint:2,time:2,x2:2},P.pw||{});
 P.lv=P.lv||{};
-P.unlocked=P.unlocked||{};
-Object.keys(P.lv).forEach(k=>{const n=Number(k);if(P.lv[k]>0)P.unlocked[n+1]=true});
+P.unlocked=Object.assign({1:true},P.unlocked||{});
+Object.keys(P.lv).forEach(k=>{const n=Number(k);if(P.lv[k]>0&&n<72)P.unlocked[n+1]=true});
 P.best=P.best||{};
 P.stats=Object.assign({g:0,w:0,ans:0,maxCombo:0},P.stats||{});
 P.ach=P.ach||{};
 P.xp=Math.max(0,Number(P.xp)||0);
 P.streak=Math.max(0,Number(P.streak)||0);
 P.lastDaily=typeof P.lastDaily==='string'?P.lastDaily:'';
+P.daily=typeof P.daily==='string'?P.daily:'';
 P.history=Array.isArray(P.history)?P.history.slice(-30):[];
-P.stats=Object.assign({g:0,w:0,ans:0,maxCombo:0},P.stats||{});
 P.coins=Math.max(0,Number(P.coins)||0);
 
 
@@ -1692,7 +1695,7 @@ function help(){
     <p><b>1. فكرة اللعبة:</b> يظهر سؤال عام مثل «اذكر فاكهة» وله 8 إجابات مخفية مرتبة من الأشهر (8 نقاط) إلى الأقل شهرة (نقطة واحدة).</p>
     <p><b>2. نظام السلسلة (Combo 🔥):</b> الإجابات الصحيحة المتتالية دون أخطاء تضاعف نقاطك حتى <b>x2.0</b>!</p>
     <p><b>3. المساعدات الذكية:</b> استخدم <b>تلميح</b> لكشف الحرف الأول، أو <b>+15 ثانية</b>، أو <b>مضاعفة النقاط</b> للإجابة القادمة.</p>
-    <p><b>4. مراحل الأوفلاين (48 مرحلة):</b> 8 عوالم، منها عالم الجزائر وعالم المغرب العربي، لكل مرحلة عدد محدد من الأسئلة ونقاط هدف يجب تحقيقها لفتح المرحلة التالية.</p>
+    <p><b>4. مراحل الأوفلاين (72 مرحلة):</b> 12 عالماً، منها عالم الجزائر وعالم المغرب العربي، لكل مرحلة عدد محدد من الأسئلة ونقاط هدف يجب تحقيقها لفتح المرحلة التالية.</p>
     <button>فهمت، لنبدأ!</button>
   </div>`;
   m.querySelector('button').onclick=()=>m.remove();
@@ -2651,7 +2654,7 @@ function showQ(){
   app.innerHTML=`
   <div class="card" style="margin-bottom:8px;padding:12px">
     <div class="top"><span>سؤال <b>${S.r}</b> من <b>${S.nq}</b> · ${QS[S.i][2]}</span><span id="tl" style="font-weight:800;color:var(--tx)">60</span></div>
-    <div class="bar"><i id="pb"></i></div>
+    <div class="bar" id="bt"><i id="pb"></i></div>
     <div class="q" style="font-size:19px;margin:4px 0 10px">${esc(q[0])}</div>
     <div id="sl" class="sg"></div>
     <div class="pw-bar" style="grid-template-columns:1fr 1fr">
@@ -2685,8 +2688,9 @@ function showQ(){
     const t=$('#gs').value.trim();
     if(!t||S.phase!=='q')return;
     $('#gs').value='';
-    S.room.emit('guess',{i:S.i,t,x2:S.x2});
+    const usedX2=S.x2;
     S.x2=false;
+    S.room.emit('guess',{i:S.i,t,x2:usedX2});
     draw();
     $('#gs').focus();
   };
@@ -2696,9 +2700,10 @@ function showQ(){
   clearInterval(S.tm);
   S.tm=setInterval(()=>{
     const left=Math.max(0,S.dl-Date.now());
-    const t=$('#tl'),p=$('#pb');
+    const t=$('#tl'),p=$('#pb'),b=$('#bt');
     if(t)t.textContent=Math.ceil(left/1000);
     if(p)p.style.width=(left/T*100)+'%';
+    if(b)b.classList.toggle('low',left<8000);
     if(left<=0){clearInterval(S.tm);if(S.host&&S.phase==='q')S.room.emit('end',{i:S.i})}
   },250);
 }
@@ -2753,6 +2758,7 @@ function finish(){
   const observer=new MutationObserver(sync);
   observer.observe(document.getElementById('app'),{childList:true,subtree:true});
   back.addEventListener('click',()=>{
+    document.querySelectorAll('.modal').forEach(m=>m.remove());
     if(S.phase==='solo'&&SS){
       clearInterval(SS.tm);
       document.body.classList.remove('play');
