@@ -595,6 +595,63 @@ button.vs-row:last-child{border-bottom:0}button.vs-row:disabled{opacity:.45}
 .chat-form{display:flex;gap:8px;align-items:center}
 .chat-form input{margin:0!important;flex:1;padding:10px 12px!important;font-size:14px!important}
 .chat-form button{width:auto!important;margin:0!important;padding:10px 14px!important;font-size:13.5px!important}
+
+/* ===== تحسينات VOID البصرية (هوية الثقب الأسود والهالة البنفسجية) ===== */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(139,92,246,.24), transparent 52%),
+    radial-gradient(circle at 12% 38%, rgba(192,38,211,.12), transparent 36%),
+    radial-gradient(circle at 88% 78%, rgba(99,102,241,.14), transparent 40%);
+}
+.hero{
+  box-shadow:0 16px 44px rgba(124,58,237,.22), inset 0 -18px 32px rgba(9,9,13,.85)!important;
+}
+.vs-ico{
+  transition:transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+  box-shadow:0 0 0 2px #7c3aed66, 0 0 26px #9333ea66, 0 8px 20px #000c;
+}
+.vs-ico:hover,.vs-ico:active{transform:scale(1.06) rotate(-3deg);box-shadow:0 0 0 2px #c084fc, 0 0 34px #a855f7aa}
+.vs-card,.vs-me,.world-card.void-world{
+  background:linear-gradient(160deg,rgba(24,21,36,.92),rgba(13,12,20,.96));
+  border:1px solid rgba(167,139,250,.18);
+  box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+  transition:transform .2s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.vs-me:hover,button.vs-row:hover{background:rgba(139,92,246,.08)}
+button.vs-row{transition:background .2s ease, padding-inline-start .2s ease}
+button.vs-row:active{transform:scale(.99)}
+button.vs-act{
+  background:linear-gradient(160deg,#1c1929,#12101b);
+  border:1px solid rgba(167,139,250,.22);
+  transition:transform .18s cubic-bezier(.22,1,.36,1), border-color .2s, box-shadow .2s;
+}
+button.vs-act:hover{border-color:#a78bfa;box-shadow:0 0 18px rgba(139,92,246,.35);transform:translateY(-2px)}
+.lvb{
+  background:linear-gradient(180deg,#1a1728,#110f1a);
+  border:1px solid rgba(167,139,250,.18);
+  transition:transform .16s ease, border-color .2s, box-shadow .2s;
+}
+.lvb:not([disabled]):hover{transform:translateY(-2px);border-color:#a78bfa}
+.lvb.cur{
+  border-color:#c084fc;
+  box-shadow:0 0 18px rgba(192,38,211,.35), inset 0 0 12px rgba(139,92,246,.2);
+  animation:voidPulse 2.4s ease-in-out infinite;
+}
+.lvb.boss-lv:not(.lock){border-color:rgba(244,63,94,.45)}
+@keyframes voidPulse{
+  0%,100%{box-shadow:0 0 12px rgba(168,85,247,.28)}
+  50%{box-shadow:0 0 24px rgba(192,38,211,.55)}
+}
+#void-toast{
+  position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(14px);
+  background:rgba(20,16,34,.95);border:1px solid #8b5cf688;color:#f3e8ff;
+  padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:700;
+  box-shadow:0 10px 28px #000a,0 0 18px #7c3aed44;z-index:99;
+  opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;white-space:nowrap
+}
+#void-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 </style>
 </head>
 <body>
@@ -1801,7 +1858,7 @@ function home(err){
   </div>
   ${off?'<div class="note">وضع عدم الاتصال: المراحل والتدريب والتحدي اليومي متاحة</div>':''}
   <div class="vs-card">
-    ${vsRow('of','مراحل التحدي',`8 عوالم · ${LV} مرحلة`)}
+    ${vsRow('of','مراحل التحدي',`12 عالماً · ${LV} مرحلة متدرجة`)}
     ${vsRow('dl-btn','التحدي اليومي'+(dailyDone?' (مكتمل)':''),dailyDone?'عد غداً لمكافأة جديدة':'4 أسئلة خاصة · مكافأة +60 عملة')}
     ${vsRow('speed-btn','تحدي السرعة','6 أسئلة · 25 ثانية لكل سؤال')}
     ${vsRow('pr-btn','تدريب حر','تمرّن على المواضيع التي تحبها')}
@@ -1810,7 +1867,7 @@ function home(err){
     ${vsRow('rd','مباراة عشوائية','تحدَّ لاعبين حقيقيين الآن',off)}
     ${vsRow('cr','غرفة خاصة','أنشئ غرفة وادعُ أصدقاءك',off)}
     ${vsRow('jn-row','انضمام بكود','ادخل غرفة صديقك',off)}
-    ${vsRow('tourn-btn','البطولات والمشاهدة المباشرة','بطولة تلقائية · بث مباشر · تعليقات',off)}
+    ${vsRow('tourn-btn','البطولات والمشاهدة المباشرة','متوقفة مؤقتاً حتى إشعار آخر 🚧',true)}
   </div>
   <div class="vs-card">
     ${vsRow('missions-btn','مهام اليوم','أنجز المهام واجمع المكافآت')}
@@ -1826,7 +1883,7 @@ function home(err){
   $('#rd').onclick=quick;
   $('#cr').onclick=()=>enter(code(),true);
   $('#jn-row').onclick=joinModal;
-  $('#tourn-btn').onclick=openTournamentModal;
+  const tb=$('#tourn-btn');if(tb)tb.onclick=()=>toast('البطولات متوقفة مؤقتاً حتى إشعار آخر');
   $('#missions-btn').onclick=showMissions;
   $('#records-btn').onclick=showLocalRecords;
   $('#profile-btn').onclick=showProfile;
@@ -2019,9 +2076,10 @@ function lvQs(d,seedOffset=0){
 function levels(){
   S.phase='lv';document.body.classList.remove('play');
   const lv=P.lv||{};
+  const sortedWorlds=[...WORLDS].sort((a,b)=>a.id-b.id);
   const nextOpen=Array.from({length:LV},(_,i)=>i+1).find(l=>!lv[l])||LV;
 
-  const worldsHtml=[...WORLDS.slice(6),...WORLDS.slice(0,6)].map(w=>{
+  const worldsHtml=sortedWorlds.map(w=>{
     const startL=(w.id-1)*6+1;
     let cells='';
     let wStars=0;
@@ -2030,28 +2088,32 @@ function levels(){
       const def=lvDef(L);
       const st=lv[L]||0;
       wStars+=st;
-      const open=L===1||!!lv[L-1]||!!(P.unlocked&&P.unlocked[L]);
-      const isCur=open&&!st&&L===nextOpen;
-      cells+=`<button class="lvb ${open?'':'lock'} ${st?'dn':''} ${isCur?'cur':''}" data-l="${L}" ${open?'':'disabled'}>
-        <b>${open?'مرحلة '+L:'🔒'}</b>
+      const open=(s===0)||!!lv[L-1]||!!(P.unlocked&&P.unlocked[L]);
+      const isCur=open&&!st&&(s===0||L===nextOpen);
+      const isBoss=s===5;
+      cells+=`<button class="lvb ${open?'':'lock'} ${st?'dn':''} ${isCur?'cur':''} ${isBoss?'boss-lv':''}" data-l="${L}" ${open?'':'disabled'}>
+        <b>${open?(isBoss?'👑 '+L:'مرحلة '+L):'🔒'}</b>
         <span class="qtag">${def.nq} أسئلة</span>
         <small>${open?'★'.repeat(st)+'☆'.repeat(3-st):'مغلقة'}</small>
       </button>`;
     }
-    return `<div class="world-card">
+    const pct=Math.round((wStars/18)*100);
+    return `<div class="world-card void-world">
       <div class="world-hd">
-        <div class="world-title"><span>${w.ico}</span><span>${w.name}</span></div>
+        <div class="world-title"><span>${w.ico}</span><span>${w.id}. ${w.name}</span></div>
         <span class="world-badge">⭐ ${wStars}/18</span>
       </div>
-      <div style="font-size:12px;color:var(--mut);margin:-4px 0 10px">${w.desc}</div>
+      <div style="font-size:12px;color:var(--mut);margin:-2px 0 8px">${w.desc}</div>
+      <div class="xp-track" style="height:5px;margin:0 0 10px"><i style="width:${pct}%"></i></div>
       <div class="lvg">${cells}</div>
     </div>`;
   }).join('');
 
+  const totalDone=Object.keys(lv).length;
   app.innerHTML=`
     <div class="top" style="margin:2px 0 12px">
-      <b style="font-size:18px;color:var(--tx)">🗺️ خريطة مراحل الأوفلاين</b>
-      <span class="pt">${P.coins} عملة</span>
+      <b style="font-size:18px;color:var(--tx)">🌌 خريطة مراحل VOID (${totalDone}/${LV})</b>
+      <span class="pt">${P.coins} 🪙</span>
     </div>
     ${worldsHtml}
     <button id="bk" class="o" style="text-align:center;margin-top:8px">رجوع للرئيسية</button>`;
