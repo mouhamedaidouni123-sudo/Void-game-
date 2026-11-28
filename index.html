@@ -597,6 +597,29 @@ button.vs-row:last-child{border-bottom:0}button.vs-row:disabled{opacity:.45}
 .chat-form button{width:auto!important;margin:0!important;padding:10px 14px!important;font-size:13.5px!important}
 
 .tn-list{margin-top:8px}.tn-list .row{padding:8px 2px}
+
+/* App launcher home screen */
+.app-section{margin:16px 0 18px}
+.app-section-title{font-size:14px;color:#b9b4c9;font-weight:700;margin:0 3px 11px}
+.app-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px 9px}
+.app-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;padding:7px 3px 9px;margin:0;background:transparent;border:0;box-shadow:none;border-radius:14px;color:var(--tx);text-align:center}
+.app-item:disabled{opacity:.35}
+.app-item b{font-size:11.5px;line-height:1.3;font-weight:650;white-space:normal}
+.app-item small{font-size:9.5px;color:var(--mut);line-height:1.2;font-weight:400}
+.app-icon{width:55px;height:55px;border-radius:17px;display:grid;place-items:center;font:800 19px system-ui;letter-spacing:-.04em;color:#fff;border:1px solid #ffffff20;box-shadow:0 7px 16px #0006,inset 0 1px #ffffff30}
+.ai-purple{background:linear-gradient(145deg,#9a67ed,#5133a5)}
+.ai-gold{background:linear-gradient(145deg,#d9a84e,#8b5b20)}
+.ai-blue{background:linear-gradient(145deg,#3c9fe8,#24518f)}
+.ai-green{background:linear-gradient(145deg,#35b98c,#176c62)}
+.ai-red{background:linear-gradient(145deg,#e36b7c,#91364e)}
+.ai-cyan{background:linear-gradient(145deg,#38b9c8,#216b83)}
+.ai-indigo{background:linear-gradient(145deg,#7776e9,#3b438c)}
+.ai-orange{background:linear-gradient(145deg,#e99b51,#9b5427)}
+.ai-slate{background:linear-gradient(145deg,#64748b,#29384b)}
+.app-item:active .app-icon{transform:scale(.94)}
+.app-icon{transition:transform .14s}
+@media(max-width:360px){.app-grid{gap:10px 5px}.app-icon{width:50px;height:50px;border-radius:15px}}
+
 </style>
 </head>
 <body>
@@ -1803,45 +1826,54 @@ function home(err){
     <span class="pt" style="font-size:15px">${P.coins} عملة</span>
   </div>
   ${off?'<div class="note">وضع عدم الاتصال: المراحل والتدريب والتحدي اليومي متاحة</div>':''}
-  <div class="vs-card">
-    ${vsRow('of','مراحل التحدي',`8 عوالم · ${LV} مرحلة`)}
-    ${vsRow('dl-btn','التحدي اليومي'+(dailyDone?' (مكتمل)':''),dailyDone?'عد غداً لمكافأة جديدة':'4 أسئلة خاصة · مكافأة +60 عملة')}
-    ${vsRow('speed-btn','تحدي السرعة','6 أسئلة · 25 ثانية لكل سؤال')}
-    ${vsRow('pr-btn','تدريب حر','تمرّن على المواضيع التي تحبها')}
-    ${aiUrl()||O?vsRow('ai-btn','أسئلة بالذكاء الاصطناعي',aiUrl()?'أسئلة جديدة في كل مرة · اختر موضوعك':'إعداد خادم الذكاء الاصطناعي'):''}
-  </div>
-  <div class="vs-card">
-    ${vsRow('rd','مباراة عشوائية','تحدَّ لاعبين حقيقيين الآن',off)}
-    ${vsRow('cr','غرفة خاصة','أنشئ غرفة وادعُ أصدقاءك',off)}
-    ${vsRow('jn-row','انضمام بكود','ادخل غرفة صديقك',off)}
-    ${vsRow('tourn-btn','البطولات والمشاهدة المباشرة','بطولة تلقائية · بث مباشر · تعليقات',off)}
-  </div>
-  <div class="vs-card">
-    ${vsRow('missions-btn','مهام اليوم','أنجز المهام واجمع المكافآت')}
-    ${vsRow('records-btn','أفضل النتائج','ترتيبك والترتيب العالمي')}
-    ${vsRow('profile-btn','ملف اللاعب','إحصائياتك وآخر مبارياتك')}
-    ${vsRow('st-btn','الإنجازات','أوسمتك ومكافآتها')}
-  </div>
+  <section class="app-section">
+    <h3 class="app-section-title">التطبيقات والألعاب</h3>
+    <div class="app-grid">
+      <button class="app-item" id="of"><span class="app-icon ai-purple">01</span><b>مراحل التحدي</b><small>${LV} مرحلة</small></button>
+      <button class="app-item" id="dl-btn"><span class="app-icon ai-gold">24</span><b>التحدي اليومي</b><small>${dailyDone?'مكتمل اليوم':'مكافأة يومية'}</small></button>
+      <button class="app-item" id="speed-btn"><span class="app-icon ai-blue">速</span><b>تحدي السرعة</b><small>اختبر سرعتك</small></button>
+      <button class="app-item" id="pr-btn"><span class="app-icon ai-green">∞</span><b>تدريب حر</b><small>تدرّب كما تريد</small></button>
+      <button class="app-item" id="rd" ${off?'disabled':''}><span class="app-icon ai-red">VS</span><b>مباراة عشوائية</b><small>لاعبون حقيقيون</small></button>
+      <button class="app-item" id="cr" ${off?'disabled':''}><span class="app-icon ai-cyan">＋</span><b>غرفة خاصة</b><small>أنشئ غرفة</small></button>
+      <button class="app-item" id="jn-row" ${off?'disabled':''}><span class="app-icon ai-indigo">⌁</span><b>انضمام بكود</b><small>ادخل غرفة</small></button>
+      <button class="app-item" id="missions-btn"><span class="app-icon ai-orange">✓</span><b>مهام اليوم</b><small>اجمع المكافآت</small></button>
+    </div>
+  </section>
+  <section class="app-section">
+    <h3 class="app-section-title">التواصل والمجتمع</h3>
+    <div class="app-grid">
+      <button class="app-item" id="fr-app"><span class="app-icon ai-blue">♧</span><b>الأصدقاء</b><small>قائمة الأصدقاء</small></button>
+      <button class="app-item" id="nt-app"><span class="app-icon ai-gold">♢</span><b>الإشعارات</b><small>آخر التنبيهات</small></button>
+      <button class="app-item" id="records-btn"><span class="app-icon ai-purple">榜</span><b>أفضل النتائج</b><small>ترتيب اللاعبين</small></button>
+    </div>
+  </section>
+  <section class="app-section">
+    <h3 class="app-section-title">حسابي</h3>
+    <div class="app-grid">
+      <button class="app-item" id="profile-btn"><span class="app-icon ai-indigo">◉</span><b>ملف اللاعب</b><small>إحصائياتك</small></button>
+      <button class="app-item" id="st-btn"><span class="app-icon ai-gold">★</span><b>الإنجازات</b><small>أوسمتك</small></button>
+      <button class="app-item" id="settings-app"><span class="app-icon ai-slate">⚙</span><b>الإعدادات</b><small>إعدادات اللعبة</small></button>
+      <button class="app-item" id="shop-app"><span class="app-icon ai-green">◇</span><b>المتجر</b><small>العناصر والإطارات</small></button>
+    </div>
+  </section>
   <p id="er" class="s" style="color:var(--bad);margin:8px 0 0;text-align:center;font-size:13px">${err||''}</p>`;
   $('#of').onclick=levels;
   $('#dl-btn').onclick=startDailyChallenge;
   $('#speed-btn').onclick=startSpeedChallenge;
   $('#pr-btn').onclick=practiceSetup;
-  {const ab=$('#ai-btn');if(ab)ab.onclick=()=>aiSetup()}
   $('#rd').onclick=quick;
   $('#cr').onclick=()=>enter(code(),true);
   $('#jn-row').onclick=joinModal;
-  $('#tourn-btn').onclick=openTournamentModal;
   $('#missions-btn').onclick=showMissions;
   $('#records-btn').onclick=showLocalRecords;
   $('#profile-btn').onclick=showProfile;
   $('#st-btn').onclick=showStatsModal;
-  $('#vs-ico').onclick=showProfile;
   $('#me-card').onclick=showProfile;
   bindAccount();
-  $('#sh').onclick=()=>shop('a');
-  $('#nt-btn').onclick=notifModal;
-  $('#set-btn').onclick=settingsModal;
+  $('#fr-app').onclick=friends;
+  $('#nt-app').onclick=notifModal;
+  $('#settings-app').onclick=settingsModal;
+  $('#shop-app').onclick=()=>shop('a');
   if(!P.tut){P.tut=1;save();help()}
 }
 function mkModal(h){
@@ -2973,7 +3005,7 @@ function finish(){
     }else if(S.phase==='result'&&SS){
       if(SS.d.isDaily||SS.d.isPractice||SS.d.isSpeed)home();
       else levels();
-    }else if(S.phase==='tournament'){VOID_LIVE.leave();home();}else if(['lobby','q','r'].includes(S.phase)){
+    }else if(['lobby','q','r'].includes(S.phase)){
       if(typeof leaveRoom==='function')leaveRoom();
       else home();
     }else if(S.phase==='shop'||S.phase==='lv'){
