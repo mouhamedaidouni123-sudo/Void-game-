@@ -620,6 +620,137 @@ button.vs-row:last-child{border-bottom:0}button.vs-row:disabled{opacity:.45}
 .app-icon{transition:transform .14s}
 @media(max-width:360px){.app-grid{gap:10px 5px}.app-icon{width:50px;height:50px;border-radius:15px}}
 
+
+/* ===== Compact Single-Screen Home & Pro SVG Icons ===== */
+body:not(.play) main.home-fit{
+  height:100dvh;
+  max-height:100dvh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:0 12px calc(env(safe-area-inset-bottom,0px) + 8px);
+}
+body:not(.play) main.home-fit .hero{
+  height:92px!important;
+  min-height:92px!important;
+  margin:0 -12px 0!important;
+  border-radius:0 0 18px 18px!important;
+  flex:none;
+}
+body:not(.play) main.home-fit #app{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:5px;
+}
+body:not(.play) main.home-fit .vs-head{padding:0 2px}
+body:not(.play) main.home-fit .vs-top-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+body:not(.play) main.home-fit .vs-id{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+body:not(.play) main.home-fit .vs-ico{
+  width:48px;
+  height:48px;
+  margin-top:-22px;
+  border-radius:14px;
+  border-width:3px;
+  flex:none;
+}
+body:not(.play) main.home-fit .vs-title{
+  font-size:20px;
+  margin:2px 0 0;
+  gap:6px;
+}
+body:not(.play) main.home-fit .vs-title svg{width:18px;height:18px}
+body:not(.play) main.home-fit .vs-desc{display:none}
+body:not(.play) main.home-fit .vs-stats{
+  margin:2px 0 0;
+  gap:4px 10px;
+  font-size:11.5px;
+}
+body:not(.play) main.home-fit .vs-me{
+  padding:7px 10px;
+  margin-bottom:0;
+  border-radius:14px;
+  gap:9px;
+}
+body:not(.play) main.home-fit .vs-me .av{width:30px;height:30px;margin:0}
+body:not(.play) main.home-fit .vs-me .nm{font-size:13.5px}
+body:not(.play) main.home-fit .vs-me .xp-track{height:5px;margin:3px 0 2px}
+body:not(.play) main.home-fit .vs-me .s{font-size:10.5px!important}
+body:not(.play) main.home-fit .note{
+  padding:5px 8px;
+  margin-bottom:0;
+  font-size:11px;
+  border-radius:10px;
+}
+body:not(.play) main.home-fit .app-section{margin:0}
+body:not(.play) main.home-fit .app-section-title{
+  font-size:11.5px;
+  margin:0 2px 5px;
+  color:#a9a3be;
+}
+body:not(.play) main.home-fit .app-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px 6px;
+}
+body:not(.play) main.home-fit .app-item{
+  padding:3px 2px;
+  gap:3px;
+  border-radius:11px;
+}
+body:not(.play) main.home-fit .app-icon{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+}
+body:not(.play) main.home-fit .app-icon svg{
+  width:21px;
+  height:21px;
+}
+body:not(.play) main.home-fit .app-item b{
+  font-size:10.5px;
+  line-height:1.2;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+body:not(.play) main.home-fit .app-item small{
+  font-size:9px;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+body:not(.play) main.home-fit .cr{
+  margin:2px 0 0;
+  font-size:10.5px;
+  flex:none;
+}
+.app-icon svg{width:24px;height:24px;display:block}
+.app-item{position:relative}
+.app-item .bdg{position:absolute;top:1px;inset-inline-end:8px;margin:0;font-size:10px;padding:1px 5px}
+@media(max-height:680px){
+  body:not(.play) main.home-fit .hero{height:72px!important;min-height:72px!important}
+  body:not(.play) main.home-fit .vs-ico{width:42px;height:42px;margin-top:-18px}
+  body:not(.play) main.home-fit .app-icon{width:38px;height:38px;border-radius:11px}
+  body:not(.play) main.home-fit .app-icon svg{width:19px;height:19px}
+  body:not(.play) main.home-fit .app-item small{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -1129,7 +1260,7 @@ function characterShopArt(index){
 }
 const avh=(a,f,big,photo)=>`<span class="av${big?' big':''} fr${f} av3d-wrap"><i>${photo?`<img src="${photo}" alt="صورة اللاعب" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:avatar3d(a)}</i></span>`;
 
-let P={v:3,n:'',a:0,f:0,c:0,coins:50,own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},unlocked:{1:true},blocked:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',daily:'',history:[],missions:null};
+let P={v:3,n:'',a:0,f:0,c:0,coins:50,lang:'ar',own:{a:[0,1,2,3],f:[0],c:[0]},pw:{hint:2,time:2,x2:2},lv:{},unlocked:{1:true},blocked:{},best:{},stats:{g:0,w:0,ans:0,maxCombo:0},ach:{},xp:0,streak:0,lastDaily:'',daily:'',history:[],missions:null};
 try{
   const x=JSON.parse(localStorage.getItem('vp')||'null');
   if(x&&typeof x==='object'){
@@ -1151,6 +1282,159 @@ P.lastDaily=typeof P.lastDaily==='string'?P.lastDaily:'';
 P.daily=typeof P.daily==='string'?P.daily:'';
 P.history=Array.isArray(P.history)?P.history.slice(-30):[];
 P.coins=Math.max(0,Number(P.coins)||0);
+
+P.lang=(P.lang==='en'?'en':'ar');
+const I18N={
+  en:{
+    'VOID | تحدي الأصدقاء':'VOID | Friends Challenge',
+    'تحدي الأصدقاء ... خمّن الإجابات قبل الجميع':'Friends Challenge ... Guess the answers first',
+    '← رجوع':'← Back',
+    '🎮 لعبة مجتمع VOID · من تصميم <b>ice</b>':'🎮 VOID Community Game · Crafted by <b>ice</b>',
+    'أهلاً بك في عالم <b>VOID</b>! اكتب اسمك للبدء':'Welcome to <b>VOID</b>! Enter your nickname to start',
+    'اسمك المستعار...':'Your nickname...',
+    'حفظ ومتابعة':'Save & Continue',
+    'متصل الآن':'Online',
+    'مباراة لعبتها':'Matches',
+    'المتجر':'Shop',
+    'الأصدقاء':'Friends',
+    'الإشعارات':'Alerts',
+    'الإعدادات':'Settings',
+    'وضع عدم الاتصال: المراحل والتدريب والتحدي اليومي متاحة':'Offline mode: Stages, Practice & Daily Challenge available',
+    'الألعاب والتحديات':'Games & Challenges',
+    'التواصل والترتيب':'Social & Ranks',
+    'حسابي':'My Account',
+    'مراحل التحدي':'Stages',
+    'التحدي اليومي':'Daily',
+    'مكتمل اليوم':'Done today',
+    'مكافأة يومية':'Daily reward',
+    'تحدي السرعة':'Speed Run',
+    'اختبر سرعتك':'Test speed',
+    'تدريب حر':'Practice',
+    'تدرّب كما تريد':'Free play',
+    'مباراة عشوائية':'Quick Match',
+    'لاعبون حقيقيون':'Live players',
+    'غرفة خاصة':'Private Room',
+    'أنشئ غرفة':'Create room',
+    'انضمام بكود':'Join Code',
+    'ادخل غرفة':'Enter code',
+    'مهام اليوم':'Missions',
+    'اجمع المكافآت':'Earn coins',
+    'قائمة الأصدقاء':'Friends list',
+    'آخر التنبيهات':'Updates',
+    'أفضل النتائج':'Leaderboard',
+    'ترتيب اللاعبين':'Top scores',
+    'ملف اللاعب':'Profile',
+    'إحصائياتك':'Your stats',
+    'الإنجازات':'Achievements',
+    'أوسمتك':'Badges',
+    'إعدادات اللعبة':'Preferences',
+    'العناصر والإطارات':'Items & frames',
+    'الصوت':'Sound',
+    'الاهتزاز':'Vibration',
+    'اللغة':'Language',
+    'العربية':'العربية',
+    'English':'English',
+    'مفعّل':'On',
+    'متوقف':'Off',
+    'دليل اللعبة':'Game Guide',
+    'إغلاق':'Close',
+    'رجوع':'Back',
+    'رجوع للرئيسية':'Back to Home',
+    'رجوع للخريطة':'Back to Map',
+    'خريطة مراحل التحدي':'Challenge Stages Map',
+    'مغلقة':'Locked',
+    'ابدأ المرحلة الآن 🚀':'Start Stage Now 🚀',
+    'اكتب إجابتك هنا...':'Type your answer here...',
+    'اكتب إجابتك قبل الجميع...':'Type your answer before others...',
+    'إرسال':'Send',
+    'تلميح':'Hint',
+    'مضاعفة':'Double',
+    'تلميح شخصي':'Personal Hint',
+    'مضاعفة القادمة':'⚡ Double Next',
+    'انضمام إلى غرفة':'Join a Room',
+    'كود الغرفة':'Room code',
+    'انضمام':'Join',
+    'إلغاء':'Cancel',
+    'لا توجد طلبات صداقة جديدة.':'No new friend requests.',
+    'التحدي اليومي متاح الآن':'Daily Challenge is ready',
+    'ابدأ':'Start',
+    'إعداد التدريب الحر':'Practice Setup',
+    'اختر الموضوع:':'Choose category:',
+    'عدد الأسئلة:':'Number of questions:',
+    'ابدأ التدريب':'Start Practice',
+    'الشخصيات':'Characters',
+    'الإطارات':'Frames',
+    'ألوان الأسماء':'Name Colors',
+    'المساعدات ⚡':'Power-ups ⚡',
+    'لوحة الترتيب':'Leaderboard',
+    'نتائجي':'My Scores',
+    'عالمي':'Global',
+    'الإحصائيات والإنجازات':'Stats & Achievements',
+    'مهام اليوم':'Daily Missions',
+    'تسجيل الدخول بجوجل لحفظ تقدمك':'Sign in with Google to save progress',
+    'خروج':'Sign out'
+  }
+};
+function applyLang(){
+  const en=P.lang==='en';
+  document.documentElement.lang=en?'en':'ar';
+  document.documentElement.dir=en?'ltr':'rtl';
+  document.title=en?'VOID | Friends Challenge':'VOID | تحدي الأصدقاء';
+  const hb=document.querySelector('.hero b'),hs=document.querySelector('.hero span'),gb=document.getElementById('global-back'),cr=document.querySelector('.cr');
+  if(hs)hs.textContent=en?'Friends Challenge ... Guess the answers first':'تحدي الأصدقاء ... خمّن الإجابات قبل الجميع';
+  if(gb)gb.textContent=en?'← Back':'← رجوع';
+  if(cr)cr.innerHTML=en?'🎮 VOID Community Game · Crafted by <b>ice</b>':'🎮 لعبة مجتمع VOID · من تصميم <b>ice</b>';
+}
+function trDOM(root){
+  if(P.lang!=='en'||!root)return;
+  const map=I18N.en;
+  const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  let n;
+  while((n=walk.nextNode())){
+    const raw=n.nodeValue;
+    const t=raw.trim();
+    if(!t)continue;
+    if(map[t]){n.nodeValue=raw.replace(t,map[t]);continue}
+    let s=raw;
+    s=s.replace(/^مرحلة\s+(\d+)$/,'Stage $1')
+       .replace(/^المرحلة\s+(\d+)$/,'Stage $1')
+       .replace(/^(\d+)\s+مرحلة$/,'$1 Stages')
+       .replace(/^(\d+)\s+عملة$/,'$1 Coins')
+       .replace(/^(\d+)\s+نقطة$/,'$1 pts')
+       .replace(/^(\d+)\s+أسئلة$/,'$1 Qs')
+       .replace(/^(\d+)\s+ثانية$/,'$1 sec')
+       .replace(/^المستوى\s+(\d+)/,'Level $1')
+       .replace(/^متاح:\s*(\d+)$/,'Left: $1')
+       .replace(/^لديك:\s*(\d+)$/,'Owned: $1')
+       .replace(/^النقاط:\s*/,'Score: ')
+       .replace(/^الهدف المطلوب:\s*/,'Target: ')
+       .replace(/^الهدف:\s*/,'Target: ')
+       .replace(/^مجموع نقاطك:\s*/,'Total Score: ')
+       .replace(/^سؤال\s+(\d+)\s+من\s+(\d+)/,'Question $1 of $2')
+       .replace(/^انتهى السؤال\s+(\d+)\s+من\s+(\d+)/,'Finished Question $1 of $2')
+       .replace(/^اكتشفت\s+(\d+)\/8$/,'Found $1/8')
+       .replace(/^اجتزت المرحلة\s+(\d+)\s+بنجاح!$/,'Stage $1 Cleared!')
+       .replace(/^لم تصل للهدف في المرحلة\s+(\d+)$/,'Target Missed in Stage $1');
+    if(s!==raw)n.nodeValue=s;
+  }
+  root.querySelectorAll('input[placeholder]').forEach(inp=>{
+    const p=inp.getAttribute('placeholder');
+    if(map[p])inp.setAttribute('placeholder',map[p]);
+  });
+}
+const _appObserver=new MutationObserver(()=>{
+  const main=document.querySelector('main');
+  if(main)main.classList.toggle('home-fit',S.phase==='home'&&!!P.n);
+  if(P.lang==='en')trDOM(document.getElementById('app'));
+});
+_appObserver.observe(document.getElementById('app'),{childList:true,subtree:true});
+const _bodyObserver=new MutationObserver(muts=>{
+  if(P.lang!=='en')return;
+  muts.forEach(m=>m.addedNodes.forEach(nd=>{if(nd.nodeType===1&&nd.classList&&nd.classList.contains('modal'))trDOM(nd)}));
+});
+_bodyObserver.observe(document.body,{childList:true});
+applyLang();
+
 
 
 /* ===== نظام التحقق الخاص بالمطور ECDSA ===== */
@@ -1781,17 +2065,31 @@ function help(){
 }
 
 /* ===== الشاشة الرئيسية ===== */
-const IC=p=>`<svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC=p=>`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const IC_BAG=IC('<path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>');
 const IC_FR=IC('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M19 8v6M16 11h6"/>');
 const IC_BELL=IC('<path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>');
 const IC_GEAR=IC('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3 1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>');
-const VBADGE='<svg viewBox="0 0 24 24" width="24" height="24"><path fill="#c084fc" d="M12 1l3 2.2 3.7-.1 1.1 3.5 3 2.2-1.2 3.5 1.2 3.5-3 2.2-1.1 3.5-3.7-.1L12 23l-3-2.2-3.7.1-1.1-3.5-3-2.2L2.4 12 1.2 8.5l3-2.2 1.1-3.5 3.7.1z"/><circle cx="12" cy="12" r="4" fill="none" stroke="#2a0a5e" stroke-width="1.6"/></svg>';
+const IC_MAP=IC('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>');
+const IC_CAL=IC('<rect x="3" y="4" width="18" height="17" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 15l2 2 4-4"/>');
+const IC_BOLT=IC('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>');
+const IC_BOOK=IC('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h6M9 11h4"/>');
+const IC_SWORDS=IC('<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><polyline points="9.5 17.5 21 6 21 3 18 3 6.5 14.5"/><line x1="11" y1="19" x2="5" y2="13"/><line x1="8" y1="16" x2="4" y2="20"/>');
+const IC_DOOR=IC('<rect x="4" y="3" width="14" height="18" rx="2"/><circle cx="14" cy="12" r="1"/><path d="M18 8h3v8h-3"/>');
+const IC_KEY=IC('<circle cx="7.5" cy="15.5" r="4.5"/><path d="M11 12l9-9"/><path d="M17 6l3 3"/><path d="M14.5 8.5l2.5 2.5"/>');
+const IC_TASKS=IC('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l2.5 2.5L16 9"/>');
+const IC_TROPHY=IC('<path d="M6 4h12v4a6 6 0 0 1-12 0V4z"/><path d="M6 6H4a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4"/><path d="M18 6h2a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4"/><path d="M12 14v5"/><path d="M8 21h8"/>');
+const IC_USER=IC('<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>');
+const IC_MEDAL=IC('<circle cx="12" cy="14" r="5"/><path d="M8.5 9.5L6 3h12l-2.5 6.5"/><path d="M12 11.5l.8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.2z"/>');
+const VBADGE='<svg viewBox="0 0 24 24" width="22" height="22"><path fill="#c084fc" d="M12 1l3 2.2 3.7-.1 1.1 3.5 3 2.2-1.2 3.5 1.2 3.5-3 2.2-1.1 3.5-3.7-.1L12 23l-3-2.2-3.7.1-1.1-3.5-3-2.2L2.4 12 1.2 8.5l3-2.2 1.1-3.5 3.7.1z"/><circle cx="12" cy="12" r="4" fill="none" stroke="#2a0a5e" stroke-width="1.6"/></svg>';
 const vsRow=(id,t,sub,dis)=>`<button class="vs-row" id="${id}" type="button" ${dis?'disabled':''}><span><b>${t}</b><small>${sub}</small></span><i class="chev">‹</i></button>`;
 function home(err){
   aiUnload();
   S.phase='home';document.body.classList.remove('play');
+  applyLang();
+  const main=document.querySelector('main');
   if(!P.n){
+    if(main)main.classList.remove('home-fit');
     app.innerHTML=`<div class="card">
       <p class="s" style="margin:0 0 12px;font-size:15px;color:var(--tx)">أهلاً بك في عالم <b>VOID</b>! اكتب اسمك للبدء</p>
       <input id="nm" placeholder="اسمك المستعار..." maxlength="16">
@@ -1800,63 +2098,62 @@ function home(err){
     $('#sv').onclick=()=>{const v=$('#nm').value.trim();if(v){P.n=v;save();home()}};
     return;
   }
+  if(main)main.classList.add('home-fit');
   checkAchievements();
   const off=!online();
   const dailyDone=P.daily===localDay();
   const nn=Object.keys((SOC&&SOC.reqs)||{}).length;
   app.innerHTML=`
   <div class="vs-head">
-    <div class="vs-ico" id="vs-ico"></div>
-    <div class="vs-title">${VBADGE}<span>VOID</span></div>
-    <p class="vs-desc">مجتمع ألعاب وأسئلة يرحّب بالجميع. تحدَّ أصدقاءك وتسلّق الترتيب.</p>
-    <span class="vs-chip">${IC('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>').replace('width="27" height="27"','width="18" height="18"')} لعبة مجتمعية</span>
-    <div class="vs-stats"><span><i class="dot on"></i> <b class="onc">${window.ONLINE||'—'}</b> متصل الآن</span><span><i class="dot"></i> <b>${(P.stats&&P.stats.g)||0}</b> مباراة لعبتها</span></div>
-  </div>
-  <div class="vs-acts">
-    <div><button class="vs-act" id="sh" type="button">${IC_BAG}</button><small>المتجر</small></div>
-    <div><button class="vs-act" id="fr-btn" type="button">${IC_FR}<span class="bdg" id="fb"></span></button><small>الأصدقاء</small></div>
-    <div><button class="vs-act" id="nt-btn" type="button">${IC_BELL}<span class="bdg" id="nb">${nn||''}</span></button><small>الإشعارات</small></div>
-    <div><button class="vs-act" id="set-btn" type="button">${IC_GEAR}</button><small>الإعدادات</small></div>
+    <div class="vs-top-row">
+      <div class="vs-id">
+        <div class="vs-ico" id="vs-ico"></div>
+        <div>
+          <div class="vs-title">${VBADGE}<span>VOID</span></div>
+          <div class="vs-stats"><span><i class="dot on"></i> <b class="onc">${window.ONLINE||'—'}</b> متصل الآن</span><span><i class="dot"></i> <b>${(P.stats&&P.stats.g)||0}</b> مباراة لعبتها</span></div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="vs-me" id="me-card">
     ${avh(P.a,ef(P.f,!!O),false,P.photo)}
     <div class="mid"><div class="nm"><span class="nc${ec(P.c,!!O)}">${esc(P.n)}</span>${O?'<span class="vb">✓</span>':''}</div>
-      <div class="xp-track" style="margin:6px 0 3px"><i style="width:${xpIntoLevel()/250*100}%"></i></div>
-      <div class="s" style="font-size:12px;margin:0;text-align:right">المستوى ${playerLevel()} · ${xpIntoLevel()}/250 XP</div></div>
-    <span class="pt" style="font-size:15px">${P.coins} عملة</span>
+      <div class="xp-track"><i style="width:${xpIntoLevel()/250*100}%"></i></div>
+      <div class="s" style="font-size:11px;margin:0;text-align:start">المستوى ${playerLevel()} · ${xpIntoLevel()}/250 XP</div></div>
+    <span class="pt" style="font-size:13.5px">${P.coins} عملة</span>
   </div>
   ${off?'<div class="note">وضع عدم الاتصال: المراحل والتدريب والتحدي اليومي متاحة</div>':''}
   <section class="app-section">
-    <h3 class="app-section-title">التطبيقات والألعاب</h3>
+    <h3 class="app-section-title">الألعاب والتحديات</h3>
     <div class="app-grid">
-      <button class="app-item" id="of"><span class="app-icon ai-purple">01</span><b>مراحل التحدي</b><small>${LV} مرحلة</small></button>
-      <button class="app-item" id="dl-btn"><span class="app-icon ai-gold">24</span><b>التحدي اليومي</b><small>${dailyDone?'مكتمل اليوم':'مكافأة يومية'}</small></button>
-      <button class="app-item" id="speed-btn"><span class="app-icon ai-blue">速</span><b>تحدي السرعة</b><small>اختبر سرعتك</small></button>
-      <button class="app-item" id="pr-btn"><span class="app-icon ai-green">∞</span><b>تدريب حر</b><small>تدرّب كما تريد</small></button>
-      <button class="app-item" id="rd" ${off?'disabled':''}><span class="app-icon ai-red">VS</span><b>مباراة عشوائية</b><small>لاعبون حقيقيون</small></button>
-      <button class="app-item" id="cr" ${off?'disabled':''}><span class="app-icon ai-cyan">＋</span><b>غرفة خاصة</b><small>أنشئ غرفة</small></button>
-      <button class="app-item" id="jn-row" ${off?'disabled':''}><span class="app-icon ai-indigo">⌁</span><b>انضمام بكود</b><small>ادخل غرفة</small></button>
-      <button class="app-item" id="missions-btn"><span class="app-icon ai-orange">✓</span><b>مهام اليوم</b><small>اجمع المكافآت</small></button>
+      <button class="app-item" id="of"><span class="app-icon ai-purple">${IC_MAP}</span><b>مراحل التحدي</b><small>${LV} مرحلة</small></button>
+      <button class="app-item" id="dl-btn"><span class="app-icon ai-gold">${IC_CAL}</span><b>التحدي اليومي</b><small>${dailyDone?'مكتمل اليوم':'مكافأة يومية'}</small></button>
+      <button class="app-item" id="speed-btn"><span class="app-icon ai-blue">${IC_BOLT}</span><b>تحدي السرعة</b><small>اختبر سرعتك</small></button>
+      <button class="app-item" id="pr-btn"><span class="app-icon ai-green">${IC_BOOK}</span><b>تدريب حر</b><small>تدرّب كما تريد</small></button>
+      <button class="app-item" id="rd" ${off?'disabled':''}><span class="app-icon ai-red">${IC_SWORDS}</span><b>مباراة عشوائية</b><small>لاعبون حقيقيون</small></button>
+      <button class="app-item" id="cr" ${off?'disabled':''}><span class="app-icon ai-cyan">${IC_DOOR}</span><b>غرفة خاصة</b><small>أنشئ غرفة</small></button>
+      <button class="app-item" id="jn-row" ${off?'disabled':''}><span class="app-icon ai-indigo">${IC_KEY}</span><b>انضمام بكود</b><small>ادخل غرفة</small></button>
+      <button class="app-item" id="missions-btn"><span class="app-icon ai-orange">${IC_TASKS}</span><b>مهام اليوم</b><small>اجمع المكافآت</small></button>
     </div>
   </section>
   <section class="app-section">
-    <h3 class="app-section-title">التواصل والمجتمع</h3>
+    <h3 class="app-section-title">التواصل والترتيب</h3>
     <div class="app-grid">
-      <button class="app-item" id="fr-app"><span class="app-icon ai-blue">♧</span><b>الأصدقاء</b><small>قائمة الأصدقاء</small></button>
-      <button class="app-item" id="nt-app"><span class="app-icon ai-gold">♢</span><b>الإشعارات</b><small>آخر التنبيهات</small></button>
-      <button class="app-item" id="records-btn"><span class="app-icon ai-purple">榜</span><b>أفضل النتائج</b><small>ترتيب اللاعبين</small></button>
+      <button class="app-item" id="fr-app"><span class="app-icon ai-blue">${IC_FR}</span><span class="bdg" id="fb">${nn||''}</span><b>الأصدقاء</b><small>قائمة الأصدقاء</small></button>
+      <button class="app-item" id="nt-app"><span class="app-icon ai-gold">${IC_BELL}</span><span class="bdg" id="nb">${nn||''}</span><b>الإشعارات</b><small>آخر التنبيهات</small></button>
+      <button class="app-item" id="records-btn"><span class="app-icon ai-purple">${IC_TROPHY}</span><b>أفضل النتائج</b><small>ترتيب اللاعبين</small></button>
+      <button class="app-item" id="shop-app"><span class="app-icon ai-green">${IC_BAG}</span><b>المتجر</b><small>العناصر والإطارات</small></button>
     </div>
   </section>
   <section class="app-section">
     <h3 class="app-section-title">حسابي</h3>
     <div class="app-grid">
-      <button class="app-item" id="profile-btn"><span class="app-icon ai-indigo">◉</span><b>ملف اللاعب</b><small>إحصائياتك</small></button>
-      <button class="app-item" id="st-btn"><span class="app-icon ai-gold">★</span><b>الإنجازات</b><small>أوسمتك</small></button>
-      <button class="app-item" id="settings-app"><span class="app-icon ai-slate">⚙</span><b>الإعدادات</b><small>إعدادات اللعبة</small></button>
-      <button class="app-item" id="shop-app"><span class="app-icon ai-green">◇</span><b>المتجر</b><small>العناصر والإطارات</small></button>
+      <button class="app-item" id="profile-btn"><span class="app-icon ai-indigo">${IC_USER}</span><b>ملف اللاعب</b><small>إحصائياتك</small></button>
+      <button class="app-item" id="st-btn"><span class="app-icon ai-gold">${IC_MEDAL}</span><b>الإنجازات</b><small>أوسمتك</small></button>
+      <button class="app-item" id="settings-app"><span class="app-icon ai-slate">${IC_GEAR}</span><b>الإعدادات</b><small>إعدادات اللعبة</small></button>
     </div>
   </section>
-  <p id="er" class="s" style="color:var(--bad);margin:8px 0 0;text-align:center;font-size:13px">${err||''}</p>`;
+  ${err?`<p id="er" class="s" style="color:var(--bad);margin:0;text-align:center;font-size:11.5px">${err}</p>`:'<p id="er" class="s" style="display:none;color:var(--bad);margin:0;text-align:center;font-size:11.5px"></p>'}`;
   $('#of').onclick=levels;
   $('#dl-btn').onclick=startDailyChallenge;
   $('#speed-btn').onclick=startSpeedChallenge;
@@ -1898,6 +2195,7 @@ function notifModal(){
 }
 function settingsModal(){
   const m=mkModal(`<h3>الإعدادات</h3>
+    <div class="vs-set"><span>اللغة</span><span style="display:flex;gap:6px"><span class="chip ${P.lang!=='en'?'on':''}" id="l-ar">العربية</span><span class="chip ${P.lang==='en'?'on':''}" id="l-en">English</span></span></div>
     <div class="vs-set"><span>الصوت</span><span class="chip ${P.snd!==false?'on':''}" id="s-snd">${P.snd!==false?'مفعّل':'متوقف'}</span></div>
     <div class="vs-set"><span>الاهتزاز</span><span class="chip ${P.vib!==false?'on':''}" id="s-vib">${P.vib!==false?'مفعّل':'متوقف'}</span></div>
     ${blockedHTML()}
@@ -1905,7 +2203,10 @@ function settingsModal(){
     <button class="o" id="s-help">دليل اللعبة</button><button class="o" id="s-x">إغلاق</button>`);
   m.querySelector('#s-x').onclick=()=>m.remove();
   m.querySelector('#s-help').onclick=()=>{m.remove();help()};
-  const tg=(id,k)=>{const e=m.querySelector(id);e.onclick=()=>{P[k]=P[k]===false;save();e.classList.toggle('on',P[k]!==false);e.textContent=P[k]!==false?'مفعّل':'متوقف'}};
+  const setLang=l=>{P.lang=l;save();applyLang();m.remove();home();settingsModal()};
+  m.querySelector('#l-ar').onclick=()=>setLang('ar');
+  m.querySelector('#l-en').onclick=()=>setLang('en');
+  const tg=(id,k)=>{const e=m.querySelector(id);e.onclick=()=>{P[k]=P[k]===false;save();e.classList.toggle('on',P[k]!==false);e.textContent=P[k]!==false?(P.lang==='en'?'On':'مفعّل'):(P.lang==='en'?'Off':'متوقف')}};
   tg('#s-snd','snd');tg('#s-vib','vib');
   m.querySelectorAll('[data-ub]').forEach(b=>b.onclick=()=>{unblockUser(b.dataset.ub);const r=b.closest('.vs-set');if(r)r.remove()});
   bindAccount();
@@ -2058,7 +2359,7 @@ function levels(){
   const lv=P.lv||{};
   const nextOpen=Array.from({length:LV},(_,i)=>i+1).find(l=>!lv[l])||LV;
 
-  const worldsHtml=[...WORLDS.slice(6),...WORLDS.slice(0,6)].map(w=>{
+  const worldsHtml=WORLDS.map(w=>{
     const startL=(w.id-1)*6+1;
     let cells='';
     let wStars=0;
@@ -2699,10 +3000,10 @@ function shop(tab){
 async function enter(c,host,auto){
   if(!online())return home('لا يوجد اتصال بالإنترنت');
   const n=P.n;
-  if(!/^[a-z0-9]{2,8}$/.test(c)){$('#er').textContent='الكود غير صحيح';return}
+  if(!/^[a-z0-9]{2,8}$/.test(c)){$('#er').style.display='block';$('#er').textContent='الكود غير صحيح';return}
   let room=null;
   try{room=await fbJoin(c)}catch(e){console.error(e)}
-  if(!room){$('#er').textContent='تعذّر الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase.';return}
+  if(!room){$('#er').style.display='block';$('#er').textContent='تعذّر الاتصال بقاعدة البيانات. تأكد من إعدادات Firebase.';return}
   Object.assign(S,{name:n,host,room,code:c,players:{},hits:[],i:-1,auto:!!auto,combo:0,x2:false});
   room.on('join',m=>{
     if(!S.players[m.peer])S.players[m.peer]=Object.assign({n:String(m.data&&m.data.n||'لاعب').slice(0,16),s:0,o:String(m.data&&m.data.o||'').slice(0,200),u:String(m.data&&m.data.u||'').slice(0,40)},vp(m.data));
@@ -2807,7 +3108,7 @@ function presence(){
 
 async function quick(){
   if(!online())return home('لا يوجد اتصال بالإنترنت');
-  $('#er').textContent='جارٍ البحث عن لعبة...';
+  $('#er').style.display='block';$('#er').textContent='جارٍ البحث عن لعبة...';
   try{
     const r=fbDb().ref('mm/open');
     const res=await r.transaction(cur=>{
@@ -2818,7 +3119,7 @@ async function quick(){
     const v=res.snapshot.val();
     if(!v||!v.c)throw 0;
     enter(v.c,v.n===1,true);
-  }catch(e){$('#er').textContent='تعذّر الاتصال، حاول مرة أخرى'}
+  }catch(e){$('#er').style.display='block';$('#er').textContent='تعذّر الاتصال، حاول مرة أخرى'}
 }
 
 function startMM(){
